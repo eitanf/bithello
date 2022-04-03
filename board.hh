@@ -1,0 +1,57 @@
+/*
+ * A board is represented as two bitmaps, one for black player, one for white.
+ * Each bitmap maps from every position in the board to whether that player
+ * has a piece occupying that position. 8x8 board positions translate to 64 bits.
+ * Board positions are interpreted where each byte represents a row (row zero is
+ * the least-significant byte). Each column is represented by one bit in the
+ * byte (least-significant bit is first column, so indexing is right-to-left).
+ */
+
+#pragma once
+
+#include <cassert>
+#include <string>
+#include <vector>
+
+#include "bits.hh"
+
+namespace Othello {
+
+////////////////////////////////////////////////////////////////////////////////
+// A complete game board consists of two bitmaps, each for one color
+class Board {
+ public:
+  const bits_t black_;
+  const bits_t white_;
+
+  ~Board() = default;
+  Board(const Board&) = default;
+  constexpr Board(bits_t black, bits_t white)
+  : black_(black), white_(white)
+  {}
+
+  // Initialize a board from rows: strings of optional black/white pieces
+  // Each string in the vector represents one row, where a charachter that
+  // matches bchar will be marked black and wchar marked white.
+  // You don't have to provide the full 8 rows or full 8 columns per row.
+  Board(const std::vector<std::string>& rows, char bchar = 'x', char wchar = 'o')
+  : black_(mark_bits(rows, bchar)), white_(mark_bits(rows, wchar))
+  {}
+
+  constexpr bool operator==(const Board&) const = default;
+
+  // Verify the board is a legal configuration under Othello rules
+  void assert_valid() const;
+
+ private:
+  // Given a vector of row strings, return a bitmap to all positions in all rows
+  // that have the given symbol in the string position.
+  bits_t mark_bits(const std::vector<std::string>& rows, char symbol) const;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Output a board pretty-printed to a stream
+std::ostream& operator<<(std::ostream&, Board);
+
+} // namespace
