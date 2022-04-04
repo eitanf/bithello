@@ -44,10 +44,8 @@ operator<<(std::ostream& out, Board board)
     for (idx_t c = 0; c < N; ++c) {
       if (test(board.white_, r, c)) {
         out << "o";
-//        out << "○";
       } else if (test(board.black_, r, c)) {
         out << "x";
-//        out << "●";
       } else {
         out << ".";
       }
