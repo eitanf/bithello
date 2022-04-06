@@ -8,19 +8,29 @@
 #include "random_player.hh"
 
 #include <algorithm>
+#include <cstdlib>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 namespace Othello {
 
 ////////////////////////////////////////////////////////////////////////////////
+// Checks the envrionment variable NTHREAD to set how many threads to use.
+// If it's not defined, just uses all available hardware threads.
 MCTSPlayer::MCTSPlayer(Color color, StopCondition& stop, uint64_t seed)
 : Player(color),
   myp_(new RandomPlayer(color_)),
   opp_(new RandomPlayer(opponent_of(color_))),
   stop_(stop),
+  nthread_(std::thread::hardware_concurrency()),
   generator_(seed? std::default_random_engine(seed)
            : std::default_random_engine(std::random_device{}())),
   dist_(0, N2)
 {
+  if (auto thread_str = getenv("NTHREAD")) {
+    nthread_ = atoi(thread_str);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,26 +81,40 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 // "makes" the move and continues with random moves of alternating players until
 // the game is over, recording who won. After the loop, the move that produced
 // the most wins is selected.
+// This version is multithreaded: it requires that StopCondition be thread-safe.
 bits_t
 MCTSPlayer::get_move(Board board, bits_t moves) const
 {
   const auto nmoves = bits_set(moves);
-  assert(nmoves > 0);
-
   auto nodes = all_nodes(board, moves);
+  std::vector<std::thread> threads;
+  std::mutex node_mutex;
+
+  assert(nmoves > 0);
   assert(nmoves == nodes.size());
 
   stop_.reset();
-  while (!stop_()) {
-    const unsigned idx = dist_(generator_) % nmoves;
-    assert(idx < nodes.size());
-    auto& node = nodes[idx].second;
-    // After this first move, we have to flip players (and the win score):
-    const auto tile_diff = play_game(node.board(), opp_, myp_);
 
-    if (tile_diff) {
-      node.mark_win(tile_diff > 0? Color::BLACK : Color::WHITE);
-    }
+  for (unsigned t = 0; t < nthread_; t++) {
+    threads.push_back(std::thread([&]() {
+      while (!stop_()) {
+        const unsigned idx = dist_(generator_) % nmoves;
+        assert(idx < nodes.size());
+        auto& node = nodes[idx].second;
+        // After this first move, we have to flip players:
+        const auto tile_diff = play_game(node.board(), opp_, myp_);
+
+        if (tile_diff) {
+          std::scoped_lock lock(node_mutex); // Protect node before modifying it:
+          node.mark_win(tile_diff > 0? Color::BLACK : Color::WHITE);
+        }
+      }
+    }));
+
+  }
+
+  for (unsigned t = 0; t < nthread_; t++) {
+    threads[t].join();
   }
 
   return highest_win_odds(nodes);

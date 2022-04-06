@@ -1,7 +1,7 @@
 CXX=g++-10
 OPTFLAGS=-O0 -g
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
-LDFLAGS=$(CXXFLAGS)
+LDFLAGS=$(CXXFLAGS) -pthread
 OBJ=$(SRC:.cc=.o)
 
 all:  bithello

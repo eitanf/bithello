@@ -37,6 +37,7 @@ class MCTSPlayer : public Player {
   Player* myp_;
   Player* opp_;
   StopCondition& stop_;
+  unsigned nthread_;
   mutable std::default_random_engine generator_;
   mutable std::uniform_int_distribution<idx_t> dist_;
 
