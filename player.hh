@@ -7,6 +7,8 @@
 #include "bits.hh"
 #include "board.hh"
 
+#include <memory>
+
 namespace Othello {
 
 // Which player is currently playing?
@@ -36,5 +38,7 @@ class Player {
 
   const Color color_;
 };
+
+using player_ptr_t = std::shared_ptr<Player>;
 
 } // namespace

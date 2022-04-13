@@ -19,10 +19,10 @@ class MCTSPlayer : public Player {
 
   // If seed is zero, some random value will be picked.
   MCTSPlayer(Color color,
-      StopCondition& stop,
+      stop_ptr_t stop,
       uint64_t seed = 0);
 
-  virtual ~MCTSPlayer();
+  virtual ~MCTSPlayer() = default;
 
   virtual void display_board(Board) const {};
 
@@ -34,9 +34,8 @@ class MCTSPlayer : public Player {
   virtual void game_over(Board) const {};
 
  private:
-  Player* myp_;
-  Player* opp_;
-  StopCondition& stop_;
+  player_ptr_t myp_, opp_;  // Random players to play out simulated games
+  stop_ptr_t stop_;
   unsigned nthread_;
   mutable std::default_random_engine generator_;
   mutable std::uniform_int_distribution<idx_t> dist_;

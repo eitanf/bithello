@@ -32,7 +32,7 @@ Board effect_move(const Board& board, Color curp, bits_t pos);
 
 // Play a game till no more legal moves are available.
 // Returns a positive number if `me' wins, negative if opponent, 0 for tie.
-int play_game(Board board, const Player* me, const Player* opponent);
+int play_game(Board board, player_ptr_t me, player_ptr_t opponent);
 
 // Return a bitmap of all legal positions for a given player and a board.
 // Scans board in all 8 directions for valid positions and adds them to bitmap.

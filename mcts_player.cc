@@ -18,10 +18,10 @@ namespace Othello {
 ////////////////////////////////////////////////////////////////////////////////
 // Checks the envrionment variable NTHREAD to set how many threads to use.
 // If it's not defined, just uses all available hardware threads.
-MCTSPlayer::MCTSPlayer(Color color, StopCondition& stop, uint64_t seed)
+MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop, uint64_t seed)
 : Player(color),
-  myp_(new RandomPlayer(color_)),
-  opp_(new RandomPlayer(opponent_of(color_))),
+  myp_(std::shared_ptr<Player>(new RandomPlayer(color_))),
+  opp_(std::shared_ptr<Player>(new RandomPlayer(opponent_of(color_)))),
   stop_(stop),
   nthread_(std::thread::hardware_concurrency()),
   generator_(seed? std::default_random_engine(seed)
@@ -31,13 +31,6 @@ MCTSPlayer::MCTSPlayer(Color color, StopCondition& stop, uint64_t seed)
   if (auto thread_str = getenv("NTHREAD")) {
     nthread_ = atoi(thread_str);
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-MCTSPlayer::~MCTSPlayer()
-{
-  delete myp_;
-  delete opp_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,15 +82,16 @@ MCTSPlayer::get_move(Board board, bits_t moves) const
   auto nodes = all_nodes(board, moves);
   std::vector<std::thread> threads;
   std::mutex node_mutex;
+  StopCondition& stop = *stop_;
 
   assert(nmoves > 0);
   assert(nmoves == nodes.size());
 
-  stop_.reset();
+  stop.reset();
 
   for (unsigned t = 0; t < nthread_; t++) {
     threads.push_back(std::thread([&]() {
-      while (!stop_()) {
+      while (!stop()) {
         const unsigned idx = dist_(generator_) % nmoves;
         assert(idx < nodes.size());
         auto& node = nodes[idx].second;

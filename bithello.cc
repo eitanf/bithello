@@ -19,20 +19,20 @@
 #include "random_player.hh"
 #include "text_player.hh"
 
+using namespace std;
+
 namespace Othello {
 
-const std::string MCTS_STR("mcts");
-const std::string RAND_STR("random");
-const std::string TEXT_STR("text");
-const uint64_t default_moves = 1000;
-
-StopCondition* stopper = nullptr;
+const string MCTS_STR("mcts");
+const string RAND_STR("random");
+const string TEXT_STR("text");
+const uint64_t DEFAULT_MOVES = 1000;
 
 ////////////////////////////////////////////////////////////////////////////////
 // help(): Display command-line options
 void help(const char* pname)
 {
-  std::cerr << pname << ": Run two-player othello game. Required arguments:\n" <<
+  cerr << pname << ": Run two-player othello game. Required arguments:\n" <<
     "-b player_args\n" << "-w player_args\n" <<
     "Where -b denotes the first player (black), -w the white player,\n" <<
     "and player_args is one of the following player types/arguments:\n" <<
@@ -41,11 +41,12 @@ void help(const char* pname)
     "\t" << MCTS_STR << ": A monte-carlo tree-search AI player\n" <<
     "\t\tOptions for MCTS:\n" <<
     "\t\t -m [number]: how many moves to evaluate for each turn (default: " <<
-    default_moves << ")\n" <<
+    DEFAULT_MOVES << ")\n" <<
+    "\t\t -d [number]: how many milliseconds to evaluate in each turn\n" <<
     "All player types can be abbreviated to unique prefix.\n" <<
     "Example: start a game with first player human, second player easy MCTS:\n" <<
     "\t" << pname << " -b text -w mcts -m 100" <<
-    std::endl;
+    endl;
   exit(-2);
 }
 
@@ -54,18 +55,19 @@ void help(const char* pname)
 //  and allocate a new player of this type.
 //  Returns nullptr for any parsing error.
 //  Modifies argc/argv to "consume" all the used command-line arguments.
-Player*
+player_ptr_t
 parse_player_options(Color color, int& argc, char**& argv)
 {
-  const std::string type(*argv++);
+  stop_ptr_t stopper;
+  const string type(*argv++);
   --argc;
 
   if (RAND_STR.find(type) == 0) {
-    return new RandomPlayer(color);
+    return shared_ptr<Player>(new RandomPlayer(color));
   }
 
   if (TEXT_STR.find(type) == 0) {
-    return new TextPlayer(color);
+    return shared_ptr<Player>(new TextPlayer(color));
   }
 
   if (MCTS_STR.find(type) == 0) {
@@ -76,12 +78,21 @@ parse_player_options(Color color, int& argc, char**& argv)
       if (!argc-- || (moves = atoll(*argv++)) < 1) {
         return nullptr;
       }
-      stopper = new StopByMoves(moves);
+      stopper = shared_ptr<StopCondition>(new StopByMoves(moves));
+
+    } else if (argc && !strcmp(*argv, "-d")) {
+      ++argv; -- argc;
+      uint64_t duration;
+      if (!argc-- || (duration = atoll(*argv++)) < 1) {
+        return nullptr;
+      }
+      stopper = shared_ptr<StopCondition>(new StopByDuration(duration));
+
     } else {
-      stopper = new StopByMoves(default_moves);
+      stopper = shared_ptr<StopCondition>(new StopByMoves(DEFAULT_MOVES));
     }
 
-    return new MCTSPlayer(color, *stopper);
+    return shared_ptr<Player>(new MCTSPlayer(color, stopper));
   }
 
   return nullptr;
@@ -90,11 +101,11 @@ parse_player_options(Color color, int& argc, char**& argv)
 ////////////////////////////////////////////////////////////////////////////////
 // Find out the the types and parameters for the black and white players from
 // the command line, and return those as newly allocated Player pointers.
-std::pair<Player*, Player*>
+pair<player_ptr_t, player_ptr_t>
 parse_command_line(int argc, char* argv[])
 {
-  Player* bp = nullptr;
-  Player* wp = nullptr;
+  player_ptr_t bp = nullptr;
+  player_ptr_t wp = nullptr;
   const auto pname = argv[0];
   argv++; argc--;
 
@@ -103,15 +114,15 @@ parse_command_line(int argc, char* argv[])
   }
 
   while (argc > 1) {  // Loop till we have exhausted command-line arguments
-    if (std::string(*argv) == "-b") {
+    if (string(*argv) == "-b") {
       if (!(bp = parse_player_options(Color::BLACK, --argc, ++argv))) {
-        std::cerr << "ERR bp\n";
+        cerr << "ERR bp\n";
         help(pname);
       }
     }
-    else if (argc && std::string(*argv) == "-w") {
+    else if (argc && string(*argv) == "-w") {
       if (!(wp = parse_player_options(Color::WHITE, --argc, ++argv))) {
-        std::cerr << "ERR wp\n";
+        cerr << "ERR wp\n";
         help(pname);
       }
     }
@@ -132,7 +143,7 @@ int main(int argc, char* argv[])
 {
   using namespace Othello;
 
-  static_assert(N == 8, "This program design for board sizes other than 8x8");
+  static_assert(N == 8, "This program not optimized for board sizes other than 8x8");
   static_assert(N2 == sizeof(bits_t) * CHAR_BIT, "Must have exactly 64 bits");
 
   auto [ black, white ] = parse_command_line(argc, argv);
@@ -140,17 +151,14 @@ int main(int argc, char* argv[])
   const Board board({ "", "", "", "...ox", "...xo" });
   const auto tile_diff = play_game(board, black, white);
 
-  std::cout << "Winner is: ";
+  cout << "Winner is: ";
   if (tile_diff > 0) {
-    std::cout << "Black\n";
+    cout << "Black\n";
   } else if (tile_diff < 0) {
-    std::cout << "White\n";
+    cout << "White\n";
   } else {
-    std::cout << "tie!\n";
+    cout << "tie!\n";
   }
-
-  delete black;
-  delete white;
 
   return tile_diff;
 }

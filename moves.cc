@@ -114,7 +114,7 @@ effect_move(const Board& board, Color curp, bits_t pos)
 // Run an interactive two-player game from a given starting point
 // Returns the difference between black tiles and white tiles at the end.
 int
-play_game(Board board, const Player* me, const Player* opponent)
+play_game(Board board, player_ptr_t me, player_ptr_t opponent)
 {
   board.assert_valid();
 

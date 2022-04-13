@@ -1,12 +1,13 @@
 CXX=g++-10
-OPTFLAGS=-O0 -g
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
+OPTFLAGS=-O0 -g
+OPTFLAGS=-O3 -DNDEBUG -DBENCHMARK
 LDFLAGS=$(CXXFLAGS) -pthread
 OBJ=$(SRC:.cc=.o)
 
 all:  bithello
 
-bithello: bithello.o board.o text_player.o random_player.o mcts_player.o mcts_node.o moves.o
+bithello: bithello.o board.o text_player.o random_player.o mcts_player.o mcts_node.o moves.o stop.o
 	$(CXX) $(LDFLAGS)  -o $@ $^
 
 test_bits: test_bits.o

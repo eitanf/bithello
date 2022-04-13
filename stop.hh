@@ -9,6 +9,8 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
+#include <memory>
 
 namespace Othello {
 
@@ -29,6 +31,25 @@ class StopByMoves : public StopCondition {
   virtual ~StopByMoves() = default;
   virtual void reset() { count_ = 0; }
   virtual bool operator()() { return ++count_ >= max_moves_; }
+};
+
+
+using stop_ptr_t = std::shared_ptr<StopCondition>;
+
+/////////////////////////////////////
+// This class stops search after a given duration in milliseconds
+class StopByDuration : public StopCondition {
+  std::chrono::steady_clock::time_point begin_;
+  const long duration_;
+#ifdef BENCHMARK
+  std::atomic<uint64_t> evals_ = 0;
+#endif
+
+ public:
+  StopByDuration(uint64_t duration = 1000) : duration_(duration) {}
+  virtual ~StopByDuration();
+  virtual void reset();
+  virtual bool operator()();
 };
 
 
