@@ -39,6 +39,7 @@ class MCTSNode {
   ~MCTSNode() = default;
 
   // Signal that a random game that started in this node was won by `who`
+  // This operation needs to be thread-safe.
   void mark_win(Color whom);
 
   // Add specific win counts for both players:
@@ -55,10 +56,10 @@ class MCTSNode {
   std::ostream& operator<<(std::ostream&);
 
  private:
-  Board    board_;
-  uint32_t b_wins_;
-  uint32_t w_wins_;
-  size_t   parent_;
+  Board       board_;
+  uint32_t    b_wins_;
+  uint32_t    w_wins_;
+  size_t      parent_;
 };
 
 } // namespace

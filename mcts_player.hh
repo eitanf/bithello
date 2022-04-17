@@ -18,9 +18,7 @@ class MCTSPlayer : public Player {
  public:
 
   // If seed is zero, some random value will be picked.
-  MCTSPlayer(Color color,
-      stop_ptr_t stop,
-      uint64_t seed = 0);
+  MCTSPlayer(Color color, stop_ptr_t stop);
 
   virtual ~MCTSPlayer() = default;
 
@@ -34,20 +32,20 @@ class MCTSPlayer : public Player {
   virtual void game_over(Board) const {};
 
  private:
-  player_ptr_t myp_, opp_;  // Random players to play out simulated games
-  stop_ptr_t stop_;
-  unsigned nthread_;
-  mutable std::default_random_engine generator_;
-  mutable std::uniform_int_distribution<idx_t> dist_;
-
   // A pair with a new move and the resulting board (in node)
   using nodes_t = std::vector<std::pair<bits_t, MCTSNode>>;
 
+  stop_ptr_t stop_;
+  unsigned nthread_;
+
   // Compute all nodes for a given starting board and legal moves:
-  nodes_t all_nodes(Board board, bits_t moves) const;
+  nodes_t compute_nodes(Board board, bits_t moves) const;
 
   // Return the move that is associated with the best odds of winning among nodes
   bits_t highest_win_odds(const nodes_t& nodes) const;
+
+  // Run a set of simulated games from current nodes and collect win statistics in nodes
+  void simulate_games(nodes_t& nodes) const;
 };
 
 } // namespace

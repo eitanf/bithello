@@ -34,7 +34,7 @@ test_mcts: test_mcts.o mcts_node.o mcts_player.o board.o moves.o random_player.o
 test_mcts.o: test_mcts.cc mcts_node.hh stop.hh moves.hh
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
-bithello.o: bithello.cc stop.hh
+bithello.o: bithello.cc stop.hh mcts_node.hh
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
 %.o: %.cc %.hh

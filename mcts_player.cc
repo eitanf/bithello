@@ -18,15 +18,10 @@ namespace Othello {
 ////////////////////////////////////////////////////////////////////////////////
 // Checks the envrionment variable NTHREAD to set how many threads to use.
 // If it's not defined, just uses all available hardware threads.
-MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop, uint64_t seed)
+MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop)
 : Player(color),
-  myp_(std::shared_ptr<Player>(new RandomPlayer(color_))),
-  opp_(std::shared_ptr<Player>(new RandomPlayer(opponent_of(color_)))),
   stop_(stop),
-  nthread_(std::thread::hardware_concurrency()),
-  generator_(seed? std::default_random_engine(seed)
-           : std::default_random_engine(std::random_device{}())),
-  dist_(0, N2)
+  nthread_(std::thread::hardware_concurrency())
 {
   if (auto thread_str = getenv("NTHREAD")) {
     nthread_ = atoi(thread_str);
@@ -37,7 +32,7 @@ MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop, uint64_t seed)
 // Create a vector of pairs of valid game moves and the board they'd cause if
 // that move is taken (an MCTSNode).
 MCTSPlayer::nodes_t
-MCTSPlayer::all_nodes(Board board, bits_t moves) const
+MCTSPlayer::compute_nodes(Board board, bits_t moves) const
 {
   nodes_t nodes;
 
@@ -68,6 +63,32 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void
+MCTSPlayer::simulate_games(nodes_t& nodes) const
+{
+  std::default_random_engine generator(std::random_device{}());
+  std::uniform_int_distribution<idx_t> dist(0, nodes.size() - 1);
+  std::vector<std::mutex> mutexes(nodes.size());
+
+  player_ptr_t myp(std::shared_ptr<Player>(new RandomPlayer(color_)));
+  player_ptr_t opp(std::shared_ptr<Player>(new RandomPlayer(opponent_of(color_))));
+  StopCondition& stop = *stop_;
+
+  while (!stop()) {
+    const unsigned idx = dist(generator);
+    assert(idx < nodes.size());
+    auto& node = nodes[idx].second;
+    // After this first move, we have to flip players:
+    const auto tile_diff = play_game(node.board(), opp, myp);
+
+    if (tile_diff) {
+      std::scoped_lock guard(mutexes[idx]);
+      node.mark_win(tile_diff > 0? Color::BLACK : Color::WHITE);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // get_move: compute the move with the highest aggregate probability of winning.
 // The main loop runs until the (external) stop condition is met. During this
 // time, it picks a random move from the available legal moves, and recursively
@@ -78,33 +99,16 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 bits_t
 MCTSPlayer::get_move(Board board, bits_t moves) const
 {
-  const auto nmoves = bits_set(moves);
-  auto nodes = all_nodes(board, moves);
+  auto nodes = compute_nodes(board, moves);
+  assert(bits_set(moves) == nodes.size());
+  assert(nodes.size() > 0);
+
+
   std::vector<std::thread> threads;
-  std::mutex node_mutex;
-  StopCondition& stop = *stop_;
 
-  assert(nmoves > 0);
-  assert(nmoves == nodes.size());
-
-  stop.reset();
-
+  stop_->reset();
   for (unsigned t = 0; t < nthread_; t++) {
-    threads.push_back(std::thread([&]() {
-      while (!stop()) {
-        const unsigned idx = dist_(generator_) % nmoves;
-        assert(idx < nodes.size());
-        auto& node = nodes[idx].second;
-        // After this first move, we have to flip players:
-        const auto tile_diff = play_game(node.board(), opp_, myp_);
-
-        if (tile_diff) {
-          std::scoped_lock lock(node_mutex); // Protect node before modifying it:
-          node.mark_win(tile_diff > 0? Color::BLACK : Color::WHITE);
-        }
-      }
-    }));
-
+    threads.push_back(std::thread([&](){ simulate_games(nodes); }));
   }
 
   for (unsigned t = 0; t < nthread_; t++) {
