@@ -365,9 +365,9 @@ TEST_CASE( "Computes the correct tile difference", "[moves]" ) {
     void game_over(Board) const {}
   };
 
-  DummyPlayer pb(Color::BLACK);
-  DummyPlayer pw(Color::WHITE);
+  auto pb = player_ptr_t(new DummyPlayer(Color::BLACK));
+  auto pw = player_ptr_t(new DummyPlayer(Color::WHITE));
 
-  REQUIRE(play_game(board, &pb, &pw) == -2);
-  REQUIRE(play_game(board, &pw, &pb) == -2);
+  REQUIRE(play_game(board, pb, pw) == -2);
+  REQUIRE(play_game(board, pw, pb) == -2);
 }

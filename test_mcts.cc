@@ -58,7 +58,7 @@ TEST_CASE( "Picks an always-winning move over an always-losing move", "[MCTS]" )
       "ooooooxo",
       "xoooooo.",
       });
-  StopByMoves stopper;
+  auto stopper = std::shared_ptr<StopCondition>(new StopByMoves);
 
   MCTSPlayer pb(Color::BLACK, stopper);
   auto moves = all_legal_moves(board, Color::BLACK);
