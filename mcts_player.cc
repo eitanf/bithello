@@ -66,19 +66,19 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 void
 MCTSPlayer::simulate_games(nodes_t& nodes) const
 {
-  std::default_random_engine generator(std::random_device{}());
-  std::uniform_int_distribution<idx_t> dist(0, nodes.size() - 1);
   std::vector<std::mutex> mutexes(nodes.size());
 
   player_ptr_t myp(std::shared_ptr<Player>(new RandomPlayer(color_)));
   player_ptr_t opp(std::shared_ptr<Player>(new RandomPlayer(opponent_of(color_))));
+
   StopCondition& stop = *stop_;
+  unsigned idx = rand();  // Round-robin index into nodes
 
   while (!stop()) {
-    const unsigned idx = dist(generator);
-    assert(idx < nodes.size());
+    idx = (idx + 1) % nodes.size();
     auto& node = nodes[idx].second;
-    // After this first move, we have to flip players:
+
+    // After making the move in node, we flip players, then play the whole game:
     const auto tile_diff = play_game(node.board(), opp, myp);
 
     if (tile_diff) {
