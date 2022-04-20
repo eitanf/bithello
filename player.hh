@@ -27,7 +27,8 @@ class Player {
   // Display the current state of the board from my player's perspective:
   virtual void display_board(Board) const = 0;
 
-  // Ask for the player's choice of move from a bitmap of valid moves:
+  // Ask for the player's choice of move from a bitmap of valid moves
+  // Can return 0 to request undo (human player).
   virtual bits_t get_move(Board b, bits_t moves) const = 0;
 
   // Notify player of the opponent's latest move:

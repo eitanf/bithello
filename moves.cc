@@ -8,6 +8,8 @@
 #include "moves.hh"
 #include "player.hh"
 
+#include <iostream>
+
 namespace Othello {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,7 @@ int
 play_game(Board board, player_ptr_t me, player_ptr_t opponent)
 {
   board.assert_valid();
+  constexpr int UNDO[2] = { -int(N2) - 1, N2 + 1 }; // Flags for an undo request
 
   bits_t pos = 0;
 
@@ -131,9 +134,26 @@ play_game(Board board, player_ptr_t me, player_ptr_t opponent)
     }
   }
 
-  pos = me->get_move(board, legal);
+  while (!pos) {
+    pos = me->get_move(board, legal);
+    if (!pos) {  // Undo requested
+      if (bits_set(board.black_) + bits_set(board.white_) < 6) {
+        std::cerr << "Can't undo yet!\n";
+      } else {
+        return UNDO[int(me->color_)];
+      }
+    }
+  }
+
+  // Regular move, notify it and continue playing:
   opponent->notify_move(board, pos);
-  return play_game(effect_move(board, me->color_, pos), opponent, me);
+  const auto diff = play_game(effect_move(board, me->color_, pos), opponent, me);
+  // If we got a normal game outcome or an undo request from the opponent, pass it up:
+  if (diff != UNDO[int(me->color_)]) {
+    return diff;
+  }
+  // If we got an undo requested downstream from my player, replay this move:
+  return play_game(board, me, opponent);
 }
 
 

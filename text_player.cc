@@ -109,9 +109,12 @@ TextPlayer::get_move(Board board, bits_t moves) const
   char c = 0;
 
   for (;;) {
-    std::cout << "Enter move> ";
+    std::cout << "Enter move (U to undo)> ";
     std::cin >> c;
     c = toupper(c);
+    if (c == 'U') {
+      return 0;
+    }
     if (strchr(SYMBOLS, c) && strchr(SYMBOLS, c) - SYMBOLS < nlegal) {
       break;
     }

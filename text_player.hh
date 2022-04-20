@@ -10,7 +10,7 @@
 
 namespace Othello {
 
-constexpr char SYMBOLS[] = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+constexpr char SYMBOLS[] = "123456789ABCDEFGHIJKLMNOPQRST!@#$%^&*()^";
 
 class TextPlayer : public Player {
  public:
