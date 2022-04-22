@@ -6,12 +6,14 @@
 
 #include "player.hh"
 
+#include <random>
+
 namespace Othello {
 
 class RandomPlayer : public Player {
  public:
    // If seed is zero, some random value will be picked.
-  RandomPlayer(Color color, uint64_t seed = 0) : Player(color), seed_(seed) {}
+  RandomPlayer(Color color, uint64_t seed = 0);
   virtual ~RandomPlayer() = default;
 
   virtual void display_board(Board) const {};
@@ -24,7 +26,7 @@ class RandomPlayer : public Player {
   virtual void game_over(Board) const {};
 
  private:
-  uint64_t seed_;
+  mutable std::default_random_engine generator_;
 };
 
 } // namespace
