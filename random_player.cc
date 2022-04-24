@@ -21,7 +21,7 @@ RandomPlayer::get_move(Board, bits_t moves) const
 {
   assert(moves);
 
-  uint32_t idx = generator_();
+  uint32_t idx = generator_() & (N2 - 1); // Take last 6 bits
   assert(idx < N2);
 
   while (!test(moves, idx)) {

@@ -86,7 +86,11 @@ parse_player_options(Color color, int& argc, char**& argv)
       if (!argc-- || (duration = atoll(*argv++)) < 1) {
         return nullptr;
       }
+#ifdef BENCHMARK
+      stopper = shared_ptr<StopCondition>(new StopByDuration(color, duration));
+#else
       stopper = shared_ptr<StopCondition>(new StopByDuration(duration));
+#endif
 
     } else {
       stopper = shared_ptr<StopCondition>(new StopByMoves(DEFAULT_MOVES));

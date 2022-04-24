@@ -122,18 +122,20 @@ play_game(Board board, player_ptr_t me, player_ptr_t opponent)
   constexpr int UNDO[2] = { -int(N2) - 1, N2 + 1 }; // Flags for an undo request
 
   bits_t pos = 0;
-
   auto legal = all_legal_moves(board, me->color_);
+
+  // If this player has no moves, try the other player:
   if (!legal) {
     std::swap(me, opponent);
     legal = all_legal_moves(board, me->color_);
-    if (!legal) {
+    if (!legal) {  // Nobody has moves, game over!
       me->game_over(board);
       opponent->game_over(board);
       return bits_set(board.black_) - bits_set(board.white_);
     }
   }
 
+  // Try to get a valid move (or UNDO for this player):
   while (!pos) {
     pos = me->get_move(board, legal);
     if (!pos) {  // Undo requested

@@ -30,7 +30,8 @@ StopByDuration::operator()()
 StopByDuration::~StopByDuration()
 {
 #ifdef BENCHMARK
-  std::clog << "Evaluated a total of " << evals_ << " complete moves\n";
+  std::clog << "Evaluated a total of " << evals_ <<
+    " partial games (color: " << int(color_) << ")\n";
 #endif
 }
 
