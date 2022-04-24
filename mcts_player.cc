@@ -66,7 +66,9 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 void
 MCTSPlayer::simulate_games(nodes_t& nodes) const
 {
-  std::vector<std::mutex> mutexes(nodes.size());
+  std::mutex mut;
+  std::vector<uint64_t> b_wins(nodes.size(), 0);
+  std::vector<uint64_t> w_wins(nodes.size(), 0);
 
   player_ptr_t myp(std::shared_ptr<Player>(new RandomPlayer(color_)));
   player_ptr_t opp(std::shared_ptr<Player>(new RandomPlayer(opponent_of(color_))));
@@ -74,17 +76,23 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
   StopCondition& stop = *stop_;
   unsigned idx = rand();  // Round-robin index into nodes
 
+  // Main loop: simulate games till stopper is flagged:
   while (!stop()) {
     idx = (idx + 1) % nodes.size();
-    auto& node = nodes[idx].second;
+    const auto tile_diff = play_game(nodes[idx].second.board(), opp, myp); // flip players
 
-    // After making the move in node, we flip players, then play the whole game:
-    const auto tile_diff = play_game(node.board(), opp, myp);
-
-    if (tile_diff) {
-      std::scoped_lock guard(mutexes[idx]);
-      node.mark_win(tile_diff > 0? Color::BLACK : Color::WHITE);
+    // Record win:
+    if (tile_diff > 0) {
+      b_wins[idx]++;
+    } else if (tile_diff < 0) {
+      w_wins[idx]++;
     }
+  }
+
+  // Update final list of wins thread-safe
+  std::scoped_lock guard(mut);
+  for (idx = 0; idx < nodes.size(); ++idx) {
+    nodes[idx].second.count_wins(b_wins[idx], w_wins[idx]);
   }
 }
 
