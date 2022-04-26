@@ -1,8 +1,8 @@
 CXX=g++-10
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
 OPTFLAGS=-O0 -g
-OPTFLAGS=-O3 -DNDEBUG -DBENCHMARK -march=native -mtune=native
-LDFLAGS=$(CXXFLAGS) -pthread # -pg
+OPTFLAGS=-O3 -DNDEBUG -DBENCHMARK -march=native -funroll-loops
+LDFLAGS=$(CXXFLAGS) -pthread -flto # -pg
 OBJ=$(SRC:.cc=.o)
 
 all:  bithello
