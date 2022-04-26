@@ -70,8 +70,8 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
   std::vector<uint64_t> b_wins(nodes.size(), 0);
   std::vector<uint64_t> w_wins(nodes.size(), 0);
 
-  player_ptr_t myp(std::shared_ptr<Player>(new RandomPlayer(color_)));
-  player_ptr_t opp(std::shared_ptr<Player>(new RandomPlayer(opponent_of(color_))));
+  auto myp = RandomPlayer(color_);
+  auto opp = RandomPlayer(opponent_of(color_));
 
   StopCondition& stop = *stop_;
   unsigned idx = rand();  // Round-robin index into nodes
@@ -79,7 +79,7 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
   // Main loop: simulate games till stopper is flagged:
   while (!stop()) {
     idx = (idx + 1) % nodes.size();
-    const auto tile_diff = play_game(nodes[idx].second.board(), opp, myp); // flip players
+    const auto tile_diff = play_game(nodes[idx].second.board(), &opp, &myp); // flip players
 
     // Record win:
     if (tile_diff > 0) {

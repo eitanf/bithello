@@ -31,10 +31,10 @@ test_moves.o: test_moves.cc moves.hh
 test_mcts: test_mcts.o mcts_node.o mcts_player.o board.o moves.o random_player.o
 	$(CXX) $(LDFLAGS)  -o $@ $^
 
-test_mcts.o: test_mcts.cc mcts_node.hh stop.hh moves.hh
+test_mcts.o: test_mcts.cc mcts_node.hh stop.hh player.hh moves.hh
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
-bithello.o: bithello.cc stop.hh mcts_node.hh player.hh
+bithello.o: bithello.cc stop.hh mcts_node.hh player.hh moves.hh
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
 %.o: %.cc %.hh

@@ -63,11 +63,11 @@ parse_player_options(Color color, int& argc, char**& argv)
   --argc;
 
   if (RAND_STR.find(type) == 0) {
-    return shared_ptr<Player>(new RandomPlayer(color));
+    return new RandomPlayer(color);
   }
 
   if (TEXT_STR.find(type) == 0) {
-    return shared_ptr<Player>(new TextPlayer(color));
+    return new TextPlayer(color);
   }
 
   if (MCTS_STR.find(type) == 0) {
@@ -96,7 +96,7 @@ parse_player_options(Color color, int& argc, char**& argv)
       stopper = shared_ptr<StopCondition>(new StopByMoves(DEFAULT_MOVES));
     }
 
-    return shared_ptr<Player>(new MCTSPlayer(color, stopper));
+    return new MCTSPlayer(color, stopper);
   }
 
   return nullptr;
@@ -164,6 +164,8 @@ int main(int argc, char* argv[])
     cout << "tie!\n";
   }
 
+  delete black;
+  delete white;
   return tile_diff;
 }
 
