@@ -67,8 +67,8 @@ void
 MCTSPlayer::simulate_games(nodes_t& nodes) const
 {
   std::mutex mut;
-  std::vector<uint64_t> b_wins(nodes.size(), 0);
-  std::vector<uint64_t> w_wins(nodes.size(), 0);
+  std::vector<uint64_t> d_wins(nodes.size(), 0);
+  std::vector<uint64_t> l_wins(nodes.size(), 0);
 
   auto myp = RandomPlayer(color_);
   auto opp = RandomPlayer(opponent_of(color_));
@@ -83,16 +83,16 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
 
     // Record win:
     if (tile_diff > 0) {
-      b_wins[idx]++;
+      d_wins[idx]++;
     } else if (tile_diff < 0) {
-      w_wins[idx]++;
+      l_wins[idx]++;
     }
   }
 
   // Update final list of wins thread-safe
   std::scoped_lock guard(mut);
   for (idx = 0; idx < nodes.size(); ++idx) {
-    nodes[idx].second.count_wins(b_wins[idx], w_wins[idx]);
+    nodes[idx].second.count_wins(d_wins[idx], l_wins[idx]);
   }
 }
 

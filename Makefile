@@ -1,4 +1,4 @@
-CXX=g++-10
+CXX=g++
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
 OPTFLAGS=-O0 -g
 OPTFLAGS=-O3 -DNDEBUG -DBENCHMARK -march=native -funroll-loops

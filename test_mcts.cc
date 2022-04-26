@@ -15,8 +15,8 @@
 
 using namespace Othello;
 
-auto b_odds = [](auto node) { return node.win_odds(Color::BLACK); };
-auto w_odds = [](auto node) { return node.win_odds(Color::WHITE); };
+auto b_odds = [](auto node) { return node.win_odds(Color::DARK); };
+auto w_odds = [](auto node) { return node.win_odds(Color::LIGHT); };
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Size of MTCS node is a power of two", "[MCTS]" ) {
@@ -25,14 +25,14 @@ TEST_CASE( "Size of MTCS node is a power of two", "[MCTS]" ) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Odds at initial node are zero", "[MCTS]" ) {
-  auto node = MCTSNode(Board(0, 0), Color::BLACK);
+  auto node = MCTSNode(Board(0, 0), Color::DARK);
   REQUIRE(b_odds(node) == 0.);
   REQUIRE(w_odds(node) == 0.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Odds after win are nonzero", "[MCTS]" ) {
-  auto node = MCTSNode(Board(0, 0), Color::BLACK);
+  auto node = MCTSNode(Board(0, 0), Color::DARK);
   node.count_wins(1, 0);
   REQUIRE(w_odds(node) == 0.);
   REQUIRE(b_odds(node) > 0.);
@@ -41,7 +41,7 @@ TEST_CASE( "Odds after win are nonzero", "[MCTS]" ) {
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Odds at start are equal", "[MCTS]" ) {
   const Board board({ "", "", "", "...ox", "...xo" });
-  auto node = MCTSNode(board, Color::BLACK);
+  auto node = MCTSNode(board, Color::DARK);
   REQUIRE(b_odds(node) == Approx(w_odds(node)).epsilon(0.00001));
 }
 
@@ -60,13 +60,13 @@ TEST_CASE( "Picks an always-winning move over an always-losing move", "[MCTS]" )
       });
   auto stopper = std::shared_ptr<StopCondition>(new StopByMoves);
 
-  MCTSPlayer pb(Color::BLACK, stopper);
-  auto moves = all_legal_moves(board, Color::BLACK);
+  MCTSPlayer pb(Color::DARK, stopper);
+  auto moves = all_legal_moves(board, Color::DARK);
   REQUIRE(pb.get_move(board, moves) ==
       0b00000000'00000000'00000000'00000000'00000000'00000000'00000000'10000000);
 
-  MCTSPlayer pw(Color::WHITE, stopper);
-  moves = all_legal_moves(board, Color::WHITE);
+  MCTSPlayer pw(Color::LIGHT, stopper);
+  moves = all_legal_moves(board, Color::LIGHT);
   REQUIRE(pb.get_move(board, moves) ==
       0b00000000'00000000'00000000'00000000'00000000'00000000'00000000'10000000);
 }

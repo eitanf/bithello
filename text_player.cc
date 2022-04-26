@@ -23,9 +23,9 @@ using std::string;
 #define NUM_COLOR COLOR("\u001b[42m\u001b[31m");
 #define RESET_BG COLOR("\u001b[0m");
 
-static const auto BLACK_STR = COLOR("\u001b[30m\u001b[42m") + string("●") + COLOR("\u001b[0m");
-static const auto WHITE_STR = COLOR("\u001b[37m\u001b[42m") + string("●") + COLOR("\u001b[0m");
-//static constexpr auto WHITE_STR = "○";
+static const auto DARK_STR = COLOR("\u001b[30m\u001b[42m") + string("●") + COLOR("\u001b[0m");
+static const auto LIGHT_STR = COLOR("\u001b[37m\u001b[42m") + string("●") + COLOR("\u001b[0m");
+//static constexpr auto LIGHT_STR = "○";
 
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -58,10 +58,10 @@ TextPlayer::display_moves(Board board, bits_t valid, const char charset[]) const
         str += NUM_COLOR;
         str += charset[symbol++];
         str += BG_COLOR;
-      } else if (test(board.black_, r, c)) {
-        str += BLACK_STR + BG_COLOR;
-      } else if (test(board.white_, r, c)) {
-        str += WHITE_STR + BG_COLOR;
+      } else if (test(board.dark_, r, c)) {
+        str += DARK_STR + BG_COLOR;
+      } else if (test(board.light_, r, c)) {
+        str += LIGHT_STR + BG_COLOR;
       } else {
         str += " ";
       }
@@ -99,19 +99,22 @@ TextPlayer::get_move(Board board, bits_t moves) const
   const auto nlegal = bits_set(moves);
   assert(nlegal && "Must have at least one legal move to ask for any");
 
-  std::cout << "\n" + BLACK_STR << ": " << bits_set(board.black_) << " " <<
-      WHITE_STR << ": " << bits_set(board.white_) << "    " <<
+  std::cout << "\n" + DARK_STR << ": " << bits_set(board.dark_) << " " <<
+      LIGHT_STR << ": " << bits_set(board.light_) << "    " <<
       "Legal moves for " <<
-    ((color_ == Color::BLACK)? BLACK_STR : WHITE_STR) <<
+    ((color_ == Color::DARK)? DARK_STR : LIGHT_STR) <<
     ":\n" <<
     display_moves(board, moves) << "\n";
 
   char c = 0;
 
   for (;;) {
-    std::cout << "Enter move (U to undo)> ";
+    std::cout << "Enter move (U to undo, q to quit)> ";
     std::cin >> c;
     c = toupper(c);
+    if (c == 'Q') {
+      exit(0);
+    }
     if (c == 'U') {
       return 0;
     }
@@ -144,11 +147,11 @@ TextPlayer::notify_move(Board before, bits_t pos) const
 {
   assert(bits_set(pos) == 1);
 
-  if (color_ == Color::BLACK) {
-    std::cout << "Player " << WHITE_STR << " chose this move:\n" <<
+  if (color_ == Color::DARK) {
+    std::cout << "Player " << LIGHT_STR << " chose this move:\n" <<
       display_moves(before, pos, "O");
   } else {
-    std::cout << "Player " << BLACK_STR << " chose this move:\n" <<
+    std::cout << "Player " << DARK_STR << " chose this move:\n" <<
       display_moves(before, pos, "X");
   }
 }
@@ -158,8 +161,8 @@ void
 TextPlayer::game_over(Board board) const
 {
   std::cout << "Final board:\n" << display_moves(board, 0, "");
-  std::cout << "Count for " << BLACK_STR << ": " << bits_set(board.black_) <<
-      "\tcount for " << WHITE_STR << ": " << bits_set(board.white_) << std::endl;
+  std::cout << "Count for " << DARK_STR << ": " << bits_set(board.dark_) <<
+      "\tcount for " << LIGHT_STR << ": " << bits_set(board.light_) << std::endl;
 
 }
 

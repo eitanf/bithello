@@ -54,8 +54,8 @@ namespace Othello {
 bits_t
 all_legal_moves(Board board, Color curp)
 {
-  const bits_t mine = (curp == Color::BLACK)? board.black_ : board.white_;
-  const bits_t theirs = (curp == Color::BLACK)? board.white_ : board.black_;
+  const bits_t mine = (curp == Color::DARK)? board.dark_ : board.light_;
+  const bits_t theirs = (curp == Color::DARK)? board.light_ : board.dark_;
 
   const bits_t ret =
       legal_moves(L_START, L2R, mine, theirs)
@@ -85,8 +85,8 @@ all_legal_moves(Board board, Color curp)
 Board
 effect_move(const Board& board, Color curp, bits_t pos)
 {
-  const bits_t mine = (curp == Color::BLACK)? board.black_ : board.white_;
-  const bits_t theirs = (curp == Color::BLACK)? board.white_ : board.black_;
+  const bits_t mine = (curp == Color::DARK)? board.dark_ : board.light_;
+  const bits_t theirs = (curp == Color::DARK)? board.light_ : board.dark_;
 
   assert(pos && !(pos & (pos - 1)) && "Move position must be a single set bit");
   assert(!(pos & mine) && "Move position can't already be mine");
@@ -108,13 +108,13 @@ effect_move(const Board& board, Color curp, bits_t pos)
 
   const bits_t newm = (mine ^ bits_flipped) | pos;
   const bits_t newt = theirs ^ bits_flipped;
-  return (curp == Color::BLACK)? Board(newm, newt) : Board(newt, newm);
+  return (curp == Color::DARK)? Board(newm, newt) : Board(newt, newm);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Run an interactive two-player game from a given starting point
-// Returns the difference between black tiles and white tiles at the end.
+// Returns the difference between dark tiles and light tiles at the end.
 int
 play_game(Board board, player_ptr_t me, player_ptr_t opponent)
 {
@@ -131,7 +131,7 @@ play_game(Board board, player_ptr_t me, player_ptr_t opponent)
     if (!legal) {  // Nobody has moves, game over!
       me->game_over(board);
       opponent->game_over(board);
-      return bits_set(board.black_) - bits_set(board.white_);
+      return bits_set(board.dark_) - bits_set(board.light_);
     }
   }
 
@@ -139,7 +139,7 @@ play_game(Board board, player_ptr_t me, player_ptr_t opponent)
   while (!pos) {
     pos = me->get_move(board, legal);
     if (!pos) {  // Undo requested
-      if (bits_set(board.black_) + bits_set(board.white_) < 6) {
+      if (bits_set(board.dark_) + bits_set(board.light_) < 6) {
         std::cerr << "Can't undo yet!\n";
       } else {
         return UNDO[int(me->color_)];

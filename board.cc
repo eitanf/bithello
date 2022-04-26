@@ -29,10 +29,10 @@ Board::assert_valid() const
   constexpr bits_t middle = 0x0000001818000000; // All four middle positions
   (void)middle;
 
-  assert (!(black_ & white_) &&
-      "Can't have locations that are both white and black");
+  assert (!(dark_ & light_) &&
+      "Can't have locations that are both light and dark");
 
-  assert (((black_ | white_) & middle) >= middle &&
+  assert (((dark_ | light_) & middle) >= middle &&
       "At least the four middle positions have to be occupied");
 }
 
@@ -42,9 +42,9 @@ operator<<(std::ostream& out, Board board)
 {
   for (idx_t r = 0; r < N; ++r) {
     for (idx_t c = 0; c < N; ++c) {
-      if (test(board.white_, r, c)) {
+      if (test(board.light_, r, c)) {
         out << "o";
-      } else if (test(board.black_, r, c)) {
+      } else if (test(board.dark_, r, c)) {
         out << "x";
       } else {
         out << ".";

@@ -10,7 +10,7 @@
 namespace Othello {
 
 // Which player is currently playing?
-enum class Color { BLACK = 0, WHITE = 1 };
+enum class Color { DARK = 0, LIGHT = 1 };
 
 // Flip color to opponent's:
 inline constexpr Color

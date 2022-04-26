@@ -33,8 +33,8 @@ const uint64_t DEFAULT_MOVES = 1000;
 void help(const char* pname)
 {
   cerr << pname << ": Run two-player othello game. Required arguments:\n" <<
-    "-b player_args\n" << "-w player_args\n" <<
-    "Where -b denotes the first player (black), -w the white player,\n" <<
+    "-d player_args\n" << "-l player_args\n" <<
+    "Where -d denotes the first player (dark), -l the light player,\n" <<
     "and player_args is one of the following player types/arguments:\n" <<
     "\t" << RAND_STR << ": An 'AI' player that picks legal moves at random\n" <<
     "\t" << TEXT_STR << ": A text-based UI for a human player\n" <<
@@ -42,10 +42,10 @@ void help(const char* pname)
     "\t\tOptions for MCTS:\n" <<
     "\t\t -m [number]: how many moves to evaluate for each turn (default: " <<
     DEFAULT_MOVES << ")\n" <<
-    "\t\t -d [number]: how many milliseconds to evaluate in each turn\n" <<
+    "\t\t -t [number]: how many milliseconds to evaluate in each turn\n" <<
     "All player types can be abbreviated to unique prefix.\n" <<
     "Example: start a game with first player human, second player easy MCTS:\n" <<
-    "\t" << pname << " -b text -w mcts -m 100" <<
+    "\t" << pname << " -d text -l mcts -m 100" <<
     endl;
   exit(-2);
 }
@@ -80,7 +80,7 @@ parse_player_options(Color color, int& argc, char**& argv)
       }
       stopper = shared_ptr<StopCondition>(new StopByMoves(moves));
 
-    } else if (argc && !strcmp(*argv, "-d")) {
+    } else if (argc && !strcmp(*argv, "-t")) {
       ++argv; -- argc;
       uint64_t duration;
       if (!argc-- || (duration = atoll(*argv++)) < 1) {
@@ -103,7 +103,7 @@ parse_player_options(Color color, int& argc, char**& argv)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Find out the the types and parameters for the black and white players from
+// Find out the the types and parameters for the dark and light players from
 // the command line, and return those as newly allocated Player pointers.
 pair<player_ptr_t, player_ptr_t>
 parse_command_line(int argc, char* argv[])
@@ -118,14 +118,14 @@ parse_command_line(int argc, char* argv[])
   }
 
   while (argc > 1) {  // Loop till we have exhausted command-line arguments
-    if (string(*argv) == "-b") {
-      if (!(bp = parse_player_options(Color::BLACK, --argc, ++argv))) {
+    if (string(*argv) == "-d") {
+      if (!(bp = parse_player_options(Color::DARK, --argc, ++argv))) {
         cerr << "ERR bp\n";
         help(pname);
       }
     }
-    else if (argc && string(*argv) == "-w") {
-      if (!(wp = parse_player_options(Color::WHITE, --argc, ++argv))) {
+    else if (argc && string(*argv) == "-l") {
+      if (!(wp = parse_player_options(Color::LIGHT, --argc, ++argv))) {
         cerr << "ERR wp\n";
         help(pname);
       }
@@ -150,22 +150,22 @@ int main(int argc, char* argv[])
   static_assert(N == 8, "This program not optimized for board sizes other than 8x8");
   static_assert(N2 == sizeof(bits_t) * CHAR_BIT, "Must have exactly 64 bits");
 
-  auto [ black, white ] = parse_command_line(argc, argv);
+  auto [ dark, light ] = parse_command_line(argc, argv);
 
   const Board board({ "", "", "", "...ox", "...xo" });
-  const auto tile_diff = play_game(board, black, white);
+  const auto tile_diff = play_game(board, dark, light);
 
   cout << "Winner is: ";
   if (tile_diff > 0) {
-    cout << "Black\n";
+    cout << "Dark\n";
   } else if (tile_diff < 0) {
-    cout << "White\n";
+    cout << "Light\n";
   } else {
     cout << "tie!\n";
   }
 
-  delete black;
-  delete white;
+  delete dark;
+  delete light;
   return tile_diff;
 }
 

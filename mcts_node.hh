@@ -14,7 +14,7 @@
  * moves.
  *
  * Each node represents a board state, and keeps track of the total wins for
- * black and white players that have been encountered in the random tree search.
+ * dark and light players that have been encountered in the random tree search.
  * Each node also holds a pointer to the parent node, the board from which this
  * move was derived (or nullptr if its the top level of the memoized tree).
  * This pointer is tagged to also hold the color for the player whose turn
@@ -57,8 +57,8 @@ class MCTSNode {
 
  private:
   Board       board_;
-  uint32_t    b_wins_;
-  uint32_t    w_wins_;
+  uint32_t    d_wins_;
+  uint32_t    l_wins_;
   size_t      parent_;
 };
 
