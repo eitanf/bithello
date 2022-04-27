@@ -36,6 +36,8 @@ class Board {
   : dark_(mark_bits(rows, bchar)), light_(mark_bits(rows, wchar))
   {}
 
+  constexpr bool operator==(const Board&) const = default;
+
   // Verify the board is a legal configuration under Othello rules:
   void assert_valid() const;
 

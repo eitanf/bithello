@@ -2,7 +2,7 @@
 
 ## Building the code
 
-Try the following instructions in a terminal (tested on Limux and MacOS):
+Try the following instructions in a terminal (tested on Linux and MacOS, with g++-10 and above or clang++-11 and above):
 
 ```
 git clone https://github.com/eitanf/bithello

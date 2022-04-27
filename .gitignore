@@ -4,3 +4,4 @@ test_bits
 test_mcts
 test_moves
 test_scan
+gmon.out
