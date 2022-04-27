@@ -96,7 +96,7 @@ constexpr inline bits_t in_scan(decltype(TR2BL), bits_t pos) { return pos & ~(BL
 ////////////////////////////////////////////////////////////////////////////////
 // Check N lines in parallel for an empty position that surrounds the opponent.
 // See documentation in moves.cc for details on the algorithm.
-template <class NEXT, typename MASK, idx_t ITERS = N>
+template <class NEXT, typename MASK, idx_t ITERS>
 constexpr inline bits_t
 legal_moves(MASK mask, NEXT next, bits_t mine, bits_t theirs)
 {
