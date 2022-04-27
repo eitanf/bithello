@@ -20,7 +20,7 @@ class MCTSPlayer : public Player {
   // If seed is zero, some random value will be picked.
   MCTSPlayer(Color color, stop_ptr_t stop);
 
-  virtual ~MCTSPlayer() = default;
+  virtual ~MCTSPlayer();
 
   virtual void display_board(Board) const {};
 
@@ -46,6 +46,12 @@ class MCTSPlayer : public Player {
 
   // Run a set of simulated games from current nodes and collect win statistics in nodes
   void simulate_games(nodes_t& nodes) const;
+
+ private:
+#ifdef BENCHMARK  // Benchmarking stat counters
+  mutable int64_t total_plays_ = 0;
+  mutable int64_t total_moves_ = 0;
+#endif
 };
 
 } // namespace

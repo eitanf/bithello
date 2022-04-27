@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
 OPTFLAGS=-O0 -g
-OPTFLAGS=-O3 -DNDEBUG -DBENCHMARK -march=native -funroll-loops
+OPTFLAGS=-O3 -DNDEBUG -march=native -funroll-loops # -g -pg # -DBENCHMARK
 LDFLAGS=$(CXXFLAGS) -pthread -flto # -pg
 OBJ=$(SRC:.cc=.o)
 

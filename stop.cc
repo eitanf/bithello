@@ -3,7 +3,6 @@
  */
 
 #include "stop.hh"
-#include <iostream>
 
 using namespace std::chrono;
 
@@ -21,18 +20,11 @@ StopByDuration::operator()()
 {
     const auto now = steady_clock::now();
     const auto done = duration_cast<milliseconds>(now - begin_).count() >= duration_;
-#ifdef BENCHMARK
-    evals_++;
-#endif
   return done;
 }
 
 StopByDuration::~StopByDuration()
 {
-#ifdef BENCHMARK
-  std::clog << "Evaluated a total of " << evals_ <<
-    " partial games (color: " << int(color_) << ")\n";
-#endif
 }
 
 } // namespace

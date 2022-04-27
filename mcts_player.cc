@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -26,6 +27,18 @@ MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop)
   if (auto thread_str = getenv("NTHREAD")) {
     nthread_ = atoi(thread_str);
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// If we measured MCTS performance, output it upon destruction
+MCTSPlayer::~MCTSPlayer()
+{
+#ifdef BENCHMARK
+  std::clog.imbue(std::locale(""));
+  std::clog << "Player " << (color_ == Color::DARK? "dark" : "light") <<
+    " evaluated a total of " << total_plays_ << " games and " <<
+    total_moves_ << " moves" << std::endl;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,37 +76,51 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// simulate games runs a loop until the external stop condition is triggered.
+// Througout the loop, it pits two random players against each other, starting
+// from a given board that is selected from a round-robin scan of all legal
+// moves from the current board (starting at a random choice of move).
+// After each simulated game, it records the game stats in local variables.
+// When the loop is done, all stats are added to member variables, under a lock.
 void
 MCTSPlayer::simulate_games(nodes_t& nodes) const
 {
   std::mutex mut;
-  std::vector<uint64_t> d_wins(nodes.size(), 0);
-  std::vector<uint64_t> l_wins(nodes.size(), 0);
+  const int nmoves = nodes.size();
+  assert(nmoves);
+  std::vector<uint64_t> d_wins(nmoves, 0);
+  std::vector<uint64_t> l_wins(nmoves, 0);
+
+#ifdef BENCHMARK
+  int64_t plays = 0;
+#endif
 
   auto myp = RandomPlayer(color_);
   auto opp = RandomPlayer(opponent_of(color_));
-
   StopCondition& stop = *stop_;
-  unsigned idx = rand();  // Round-robin index into nodes
+  int idx = rand() % nmoves;  // Round-robin index into nodes
 
-  // Main loop: simulate games till stopper is flagged:
-  while (!stop()) {
-    idx = (idx + 1) % nodes.size();
+  for (; !stop(); idx = (idx + 1) % nmoves) {
     const auto tile_diff = play_game(nodes[idx].second.board(), &opp, &myp); // flip players
-
-    // Record win:
-    if (tile_diff > 0) {
+    if (tile_diff > 0) {  // Record winner, if any:
       d_wins[idx]++;
     } else if (tile_diff < 0) {
       l_wins[idx]++;
     }
+#ifdef BENCHMARK
+    plays++;
+#endif
   }
 
-  // Update final list of wins thread-safe
+  // Update final list of wins (thread-safe)
   std::scoped_lock guard(mut);
-  for (idx = 0; idx < nodes.size(); ++idx) {
+  for (idx = 0; idx < nmoves; ++idx) {
     nodes[idx].second.count_wins(d_wins[idx], l_wins[idx]);
   }
+#ifdef BENCHMARK
+  total_plays_ += plays;
+  total_moves_ += plays * nodes[0].second.board().moves_left();
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

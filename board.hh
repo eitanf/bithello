@@ -26,9 +26,7 @@ class Board {
 
   ~Board() = default;
   Board(const Board&) = default;
-  constexpr Board(bits_t dark, bits_t light)
-  : dark_(dark), light_(light)
-  {}
+  constexpr Board(bits_t dark, bits_t light) : dark_(dark), light_(light) {}
 
   // Initialize a board from rows: strings of optional dark/light pieces
   // Each string in the vector represents one row, where a charachter that
@@ -38,10 +36,14 @@ class Board {
   : dark_(mark_bits(rows, bchar)), light_(mark_bits(rows, wchar))
   {}
 
-  constexpr bool operator==(const Board&) const = default;
-
-  // Verify the board is a legal configuration under Othello rules
+  // Verify the board is a legal configuration under Othello rules:
   void assert_valid() const;
+
+  // How many more turns are left on this board?
+  constexpr unsigned moves_left() const
+  {
+    return N2 - bits_set(dark_) - bits_set(light_);
+  }
 
  private:
   // Given a vector of row strings, return a bitmap to all positions in all rows

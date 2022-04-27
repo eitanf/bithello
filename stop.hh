@@ -12,10 +12,6 @@
 #include <chrono>
 #include <memory>
 
-#ifdef BENCHMARK
-#  include "player.hh"
-#endif
-
 namespace Othello {
 
 struct StopCondition {
@@ -45,17 +41,9 @@ using stop_ptr_t = std::shared_ptr<StopCondition>;
 class StopByDuration : public StopCondition {
   std::chrono::steady_clock::time_point begin_;
   const long duration_;
-#ifdef BENCHMARK
-  Color color_;
-  std::atomic<uint64_t> evals_;
-#endif
 
  public:
   StopByDuration(uint64_t duration = 1000) : duration_(duration) {}
-#ifdef BENCHMARK
-  StopByDuration(Color color, uint64_t duration = 1000)
-    : duration_(duration), color_(color), evals_(0) {}
-#endif
   virtual ~StopByDuration();
   virtual void reset();
   virtual bool operator()();
