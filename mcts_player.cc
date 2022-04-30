@@ -34,6 +34,7 @@ MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop)
 MCTSPlayer::~MCTSPlayer()
 {
 #ifdef BENCHMARK
+  std::cout << total_moves_ << std::endl;
   std::clog.imbue(std::locale(""));
   std::clog << "Player " << (color_ == Color::DARK? "dark" : "light") <<
     " evaluated a total of " << total_plays_ << " games and " <<

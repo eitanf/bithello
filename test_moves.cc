@@ -343,6 +343,30 @@ TEST_CASE( "effect_moves changes nothing when no legal moves", "[moves]" ) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "flip_bits flips exactly the correct bits -- corner", "[moves]" ) {
+  Board b({
+    "...xxxxx",
+    ".x.xxxxx",
+    "..xxoxx.",
+    "..oooxoo",
+    "...ox.x.",
+    "..o.x...",
+    "....x...",
+    "....x..."
+    });
+
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, L2R) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, R2L) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, T2B) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, B2T) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, BR2TL) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, BL2TR) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, TR2BL) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, TL2BR) ==
+      0b00000000'00000000'00000000'00000000'00000000'00000100'00000010'00000000);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Computes the correct tile difference", "[moves]" ) {
   const Board board({
       "oxxxxxxo",
