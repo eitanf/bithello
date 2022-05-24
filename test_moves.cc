@@ -6,12 +6,26 @@
 
 #define CATCH_CONFIG_MAIN
 
-#include "scan.hh"
 #include "board.hh"
-#include "moves.hh"
 #include "catch.hh"
+#include "moves.hh"
+#include "player.hh"
+#include "scan.hh"
 
 using namespace Othello;
+using enum Color;
+
+////////////////////////////////////////////////////////////////////////////////
+// Helper to set a single piece on a board:
+
+constexpr Board bset(Board board, Color color, bits_t pos)
+{
+  if (color == DARK) {
+    return Board(board.dark_ | pos, board.light_);
+  } else {
+    return Board(board.dark_, board.light_ | pos);
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "legal_moves finds all possible moves -- dense", "[moves]" ) {
@@ -131,8 +145,8 @@ TEST_CASE( "legal_moves stops at board borders", "[moves]" ) {
         "xx....oo",
         "xxx..ooo"
       });
-    REQUIRE(all_legal_moves(b, Color::DARK) == 0ull);
-    REQUIRE(all_legal_moves(b, Color::LIGHT) == 0ull);
+    REQUIRE(all_legal_moves(b, DARK) == 0ull);
+    REQUIRE(all_legal_moves(b, LIGHT) == 0ull);
   }
 
   SECTION ( "diagonal" ) {
@@ -146,9 +160,97 @@ TEST_CASE( "legal_moves stops at board borders", "[moves]" ) {
         "o......o",
         "oooo.ooo"
       });
-    REQUIRE(all_legal_moves(b, Color::DARK) == 0ull);
-    REQUIRE(all_legal_moves(b, Color::LIGHT) == 0ull);
+    REQUIRE(all_legal_moves(b, DARK) == 0ull);
+    REQUIRE(all_legal_moves(b, LIGHT) == 0ull);
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - R2L", "[moves]" ) {
+  Board b_in({  ".x......" });  // b_in.dark_ == 2
+  Board b_out({ "x......." });
+
+    REQUIRE((inside(R2L) & b_in.dark_) != 0);
+    REQUIRE((inside(R2L) & b_out.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - L2R", "[moves]" ) {
+  Board b_in({  "......x." });
+  Board b_out({ ".......x" });
+
+    REQUIRE((inside(L2R) & b_in.dark_) != 0);
+    REQUIRE((inside(L2R) & b_out.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - B2T", "[moves]" ) {
+  Board b_in({ "", "x" });
+  Board b_out({ "x" });
+
+    REQUIRE((inside(B2T) & b_in.dark_) != 0);
+    REQUIRE((inside(B2T) & b_out.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - T2B", "[moves]" ) {
+  Board b_in({ "", "", "", "", "", "", "x", "" });
+  Board b_out({ "", "", "", "", "", "", "", "x", });
+
+    REQUIRE((inside(T2B) & b_in.dark_) != 0);
+    REQUIRE((inside(T2B) & b_out.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - TL2BR", "[moves]" ) {
+  Board b_in({ "" , "", "", "", "", "", "x", "" });
+  Board b_out1({ "", "", "", "", "", "", ".......x", "" });
+  Board b_out2({ "", "", "", "", "", "", "", ".......x", });
+  Board b_out3({ "", "", "", "", "", "", "", "......x.", });
+
+    REQUIRE((inside(TL2BR) & b_in.dark_) != 0);
+    REQUIRE((inside(TL2BR) & b_out1.dark_) == 0);
+    REQUIRE((inside(TL2BR) & b_out2.dark_) == 0);
+    REQUIRE((inside(TL2BR) & b_out3.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - TR2BL", "[moves]" ) {
+  Board b_in({ "" , "", "", "", "", "", ".x", "" });
+  Board b_out1({ "", "", "", "", "", "", "x.......", "" });
+  Board b_out2({ "", "", "", "", "", "", "", "x.......", });
+  Board b_out3({ "", "", "", "", "", "", "", "......x.", });
+
+    REQUIRE((inside(TR2BL) & b_in.dark_) != 0);
+    REQUIRE((inside(TR2BL) & b_out1.dark_) == 0);
+    REQUIRE((inside(TR2BL) & b_out2.dark_) == 0);
+    REQUIRE((inside(TR2BL) & b_out3.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - BL2TR", "[moves]" ) {
+  Board b_in({ "" , "", "", "", "", "", "x", "" });
+  Board b_out1({ "", "", "", "", "", "", ".......x", "" });
+  Board b_out2({ "", "", "", "", "", "", "", ".......x", });
+  Board b_out3({ "...x", "", "", "", "", "", "", "........", });
+
+    REQUIRE((inside(BL2TR) & b_in.dark_) != 0);
+    REQUIRE((inside(BL2TR) & b_out1.dark_) == 0);
+    REQUIRE((inside(BL2TR) & b_out2.dark_) == 0);
+    REQUIRE((inside(BL2TR) & b_out3.dark_) == 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+TEST_CASE( "Inside board computes correctly - BR2TL", "[moves]" ) {
+  Board b_in({ "" , "", "", "", "", "", ".x", "" });
+  Board b_out1({ "", "", "", "", "", "", "x.......", "" });
+  Board b_out2({ "x", "", "", "", "", "", "", "........", });
+  Board b_out3({ "", "x", "", "", "", "", "", "........", });
+
+    REQUIRE((inside(BR2TL) & b_in.dark_) != 0);
+    REQUIRE((inside(BR2TL) & b_out1.dark_) == 0);
+    REQUIRE((inside(BR2TL) & b_out2.dark_) == 0);
+    REQUIRE((inside(BR2TL) & b_out3.dark_) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +363,7 @@ TEST_CASE( "effect_moves changes all flipped bits", "[moves]" ) {
     "xo.xo.x."
     });
 
-  REQUIRE(effect_move(b, Color::LIGHT, setpos(2, 4)) ==
+  REQUIRE(effect_move(b, LIGHT, setpos(2, 4)) ==
     Board({
     "..ooxoox",
     "o.oooo.x",
@@ -272,7 +374,7 @@ TEST_CASE( "effect_moves changes all flipped bits", "[moves]" ) {
     ".x.ox.ox",
     "xo.xo.x."}));
 
-  REQUIRE(effect_move(b, Color::DARK, setpos(4, 3)) ==
+  REQUIRE(effect_move(b, DARK, setpos(4, 3)) ==
     Board({
     "..ooxoox",
     "o.ooox.x",
@@ -283,7 +385,7 @@ TEST_CASE( "effect_moves changes all flipped bits", "[moves]" ) {
     ".x.xx.ox",
     "xo.xo.x."}));
 
-  REQUIRE(effect_move(b, Color::DARK, setpos(7, 2)) ==
+  REQUIRE(effect_move(b, DARK, setpos(7, 2)) ==
     Board({
     "..ooxoox",
     "o.ooox.x",
@@ -309,14 +411,22 @@ TEST_CASE( "effect_moves changes nothing when no legal moves", "[moves]" ) {
         "xxx..ooo"
       });
 
-    REQUIRE(effect_move(b, Color::DARK, setpos(1, 3)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(1, 3)) == b);
-    REQUIRE(effect_move(b, Color::DARK, setpos(2, 6)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(2, 6)) == b);
-    REQUIRE(effect_move(b, Color::DARK, setpos(7, 3)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(7, 3)) == b);
-    REQUIRE(effect_move(b, Color::DARK, setpos(7, 4)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(7, 4)) == b);
+    REQUIRE(effect_move(b, DARK, setpos(1, 2)) ==
+            bset(b, DARK, setpos(1, 2)));
+    REQUIRE(effect_move(b, LIGHT, setpos(1, 2)) ==
+            bset(b, LIGHT, setpos(1, 2)));
+    REQUIRE(effect_move(b, DARK, setpos(2, 6)) ==
+            bset(b, DARK, setpos(2, 6)));
+    REQUIRE(effect_move(b, LIGHT, setpos(2, 6)) ==
+            bset(b, LIGHT, setpos(2, 6)));
+    REQUIRE(effect_move(b, DARK, setpos(7, 3)) ==
+            bset(b, DARK, setpos(7, 3)));
+    REQUIRE(effect_move(b, LIGHT, setpos(7, 3)) ==
+            bset(b, LIGHT, setpos(7, 3)));
+    REQUIRE(effect_move(b, DARK, setpos(7, 4)) ==
+            bset(b, DARK, setpos(7, 4)));
+    REQUIRE(effect_move(b, LIGHT, setpos(7, 4)) ==
+            bset(b, LIGHT, setpos(7, 4)));
   }
 
   SECTION ( "diagonal" ) {
@@ -331,14 +441,22 @@ TEST_CASE( "effect_moves changes nothing when no legal moves", "[moves]" ) {
         "oooo.ooo"
       });
 
-    REQUIRE(effect_move(b, Color::DARK, setpos(1, 3)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(1, 3)) == b);
-    REQUIRE(effect_move(b, Color::DARK, setpos(2, 6)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(2, 6)) == b);
-    REQUIRE(effect_move(b, Color::DARK, setpos(6, 2)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(6, 2)) == b);
-    REQUIRE(effect_move(b, Color::DARK, setpos(5, 7)) == b);
-    REQUIRE(effect_move(b, Color::LIGHT, setpos(5, 7)) == b);
+    REQUIRE(effect_move(b, DARK, setpos(1, 2)) ==
+            bset(b, DARK, setpos(1, 2)));
+    REQUIRE(effect_move(b, LIGHT, setpos(1, 2)) ==
+            bset(b, LIGHT, setpos(1, 2)));
+    REQUIRE(effect_move(b, DARK, setpos(2, 6)) ==
+            bset(b, DARK, setpos(2, 6)));
+    REQUIRE(effect_move(b, LIGHT, setpos(2, 6)) ==
+            bset(b, LIGHT, setpos(2, 6)));
+    REQUIRE(effect_move(b, DARK, setpos(6, 2)) ==
+            bset(b, DARK, setpos(6, 2)));
+    REQUIRE(effect_move(b, LIGHT, setpos(6, 2)) ==
+            bset(b, LIGHT, setpos(6, 2)));
+    REQUIRE(effect_move(b, DARK, setpos(5, 7)) ==
+            bset(b, DARK, setpos(5, 7)));
+    REQUIRE(effect_move(b, LIGHT, setpos(5, 7)) ==
+            bset(b, LIGHT, setpos(5, 7)));
   }
 }
 
@@ -389,8 +507,8 @@ TEST_CASE( "Computes the correct tile difference", "[moves]" ) {
     void game_over(Board) const {}
   };
 
-  auto pb = player_ptr_t(new DummyPlayer(Color::DARK));
-  auto pw = player_ptr_t(new DummyPlayer(Color::LIGHT));
+  auto pb = player_ptr_t(new DummyPlayer(DARK));
+  auto pw = player_ptr_t(new DummyPlayer(LIGHT));
 
   REQUIRE(play_game(board, pb, pw) == -2);
   REQUIRE(play_game(board, pw, pb) == -2);

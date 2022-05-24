@@ -102,9 +102,7 @@ effect_move(const Board& board, Color curp, bits_t pos)
     | find_flipped(pos, mine, theirs, TL2BR)
     | find_flipped(pos, mine, theirs, TR2BL);
 
-  if (!bits_flipped) {
-    return board;
-  }
+  assert(bits_flipped && "Can't effect a move that flips nothing!");
 
   const bits_t newm = (mine ^ bits_flipped) | pos;
   const bits_t newt = theirs ^ bits_flipped;

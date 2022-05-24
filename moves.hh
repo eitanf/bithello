@@ -73,21 +73,6 @@ constexpr inline bits_t is_valid_pos(bits_t saw_theirs, bits_t mine, bits_t thei
   return saw_theirs & ~mine & ~theirs;
 }
 
-// For every direction, there is a bitmap that represents bits that are not
-// the last bits of that direction, i.e., not on the edge. This bitmap is
-// exactly the inverse of the bitmap for the start positions in the opposite
-// direction. This function is overloaded on an unused "next" variable in each direction.
-constexpr inline bits_t in_scan(decltype(L2R), bits_t pos) { return pos & ~R_START; }
-constexpr inline bits_t in_scan(decltype(R2L), bits_t pos) { return pos & ~L_START; }
-constexpr inline bits_t in_scan(decltype(T2B), bits_t pos) { return pos & ~B_START; }
-constexpr inline bits_t in_scan(decltype(B2T), bits_t pos) { return pos & ~T_START; }
-constexpr inline bits_t in_scan(decltype(BL2TR), bits_t pos) { return pos & ~(TR_START.hi_); }
-constexpr inline bits_t in_scan(decltype(BR2TL), bits_t pos) { return pos & ~(TL_START.hi_); }
-constexpr inline bits_t in_scan(decltype(TL2BR), bits_t pos) { return pos & ~(BR_START.lo_); }
-constexpr inline bits_t in_scan(decltype(TR2BL), bits_t pos) { return pos & ~(BL_START.lo_); }
-
-
-
 /*
  * Template & inline function definitions
  */
@@ -117,12 +102,108 @@ legal_moves(MASK mask, NEXT next, bits_t mine, bits_t theirs)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// For every direction, there is a bitmap that represents bits that are not
+// the last bits of that direction, i.e., not on the edge. This bitmap is
+// exactly the inverse of the bitmap for the edge bits in that direction.
+
+constexpr inline bits_t inside(decltype(L2R))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, i, N-1);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(R2L))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, i, 0);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(B2T))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, 0, i);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(T2B))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, N-1, i);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(TL2BR))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, N-1, i);
+    ret = set(ret, i, N-1);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(TR2BL))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, N-1, i);
+    ret = set(ret, i, 0);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(BL2TR))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, 0, i);
+    ret = set(ret, i, N-1);
+  }
+  return ~ret;
+}
+
+constexpr inline bits_t inside(decltype(BR2TL))
+{
+  bits_t ret = 0;
+  for (unsigned i = 0; i < N; ++i)
+  {
+    ret = set(ret, 0, i);
+    ret = set(ret, i, 0);
+  }
+  return ~ret;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 template <class NEXT>
 constexpr inline bits_t
 find_flipped(bits_t start, bits_t mine, bits_t theirs, NEXT next)
 {
+  // First, ensure that the starting position isn't on the wrong edge:
+  constexpr auto in = inside(next);
+  if (!(start & in)) {
+    return bits_t(0);
+  }
+
+  // Now, find how many opponent's pieces can be found in this direction:
   bits_t mask = next(start), ret = 0;
-  for (; in_scan(next, mask) & theirs; mask = next(mask)) {
+  for (; in & mask & theirs; mask = next(mask)) {
     ret |= mask;
   }
 
