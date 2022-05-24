@@ -44,14 +44,19 @@ bits_t all_legal_moves(Board board, Color curp);
 // moves the mask to the next piece in the row/column/diagonal, and the two
 // bitmaps for my and opponent's pieces, compute a bitmap of all board positions
 // that would represent a valid move in the current scan direction.
-template <class NEXT, typename MASK, idx_t ITERS = N>
+template <typename T>
+concept Next = requires(T a, bits_t b) {
+  b = a(b);
+};
+
+template <Next NEXT, Bitwise MASK, idx_t ITERS = N>
 constexpr inline bits_t legal_moves(MASK mask, NEXT next, bits_t mine, bits_t theirs);
 
 // Search in one direction, starting from a single bit `start` and advancing
 // each iteration using next, until we're either at the board's border or
 // we're no longer seeing opponent pieces. In that case, if the current piece
 // is mine, then the bits we collected are good, otherwise, nothing to flip.
-template <class NEXT>
+template <Next NEXT>
 constexpr inline bits_t find_flipped(bits_t start, bits_t mine, bits_t theirs, NEXT next);
 
 
@@ -81,7 +86,7 @@ constexpr inline bits_t is_valid_pos(bits_t saw_theirs, bits_t mine, bits_t thei
 ////////////////////////////////////////////////////////////////////////////////
 // Check N lines in parallel for an empty position that surrounds the opponent.
 // See documentation in moves.cc for details on the algorithm.
-template <class NEXT, typename MASK, idx_t ITERS>
+template <Next NEXT, Bitwise MASK, idx_t ITERS>
 constexpr inline bits_t
 legal_moves(MASK mask, NEXT next, bits_t mine, bits_t theirs)
 {
@@ -191,7 +196,7 @@ constexpr inline bits_t inside(decltype(BR2TL))
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-template <class NEXT>
+template <Next NEXT>
 constexpr inline bits_t
 find_flipped(bits_t start, bits_t mine, bits_t theirs, NEXT next)
 {

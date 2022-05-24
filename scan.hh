@@ -67,19 +67,20 @@
 
 namespace Othello {
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // Generic traversal (bit shift) operators by a compile-time constant count
 template <idx_t COUNT>
 struct bit_shr
 {
-  template <typename T>
+  template <Bitwise T>
   constexpr T operator()(const T& bits) const { return bits >> COUNT; }
 };
 
 template <idx_t COUNT>
 struct bit_shl
 {
-  template <typename T>
+  template <Bitwise T>
   constexpr T operator()(const T& bits) const { return bits << COUNT; }
 };
 

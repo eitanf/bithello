@@ -44,6 +44,15 @@ constexpr bits_t clear(bits_t bits, idx_t row, idx_t col) { return clear(bits, p
 constexpr idx_t bits_set(bits_t bits) { return __builtin_popcountll(bits); }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Generic concept for anything that supports some parallel bitwise operations.
+template <typename T>
+concept Bitwise = requires(T a) {
+  a << 1;
+  a >> 1;
+  a & 1;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // Double-width bitmap classes for diagonal traversals.
 // Holds two bits_t bitmaps, but only one (either hi_ or lo_) is used for &
 // operators against regular-sized bitmaps. The other bitmap holds bits and
