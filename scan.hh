@@ -90,10 +90,10 @@ struct bit_shl
 constexpr DB_lo
 diagonal_start_bottom(idx_t start_bit)
 {
-  DB_lo ret(0,0);
+  DB_lo ret;
   for (unsigned i = 0; i < NDIAG; ++i) {
     ret = ret << N;
-    ret.lo_ = set(ret.lo_, start_bit);
+    ret.set_bit(start_bit);
   }
   return ret;
 }
@@ -101,10 +101,10 @@ diagonal_start_bottom(idx_t start_bit)
 constexpr DB_hi
 diagonal_start_top(idx_t start_bit)
 {
-  DB_hi ret(0,0);
+  DB_hi ret;
   for (unsigned i = 0; i < NDIAG; ++i) {
     ret = ret >> N;
-    ret.hi_ = set(ret.hi_, start_bit);
+    ret.set_bit(start_bit);
   }
   return ret;
 }

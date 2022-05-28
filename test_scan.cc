@@ -101,10 +101,10 @@ TEST_CASE( "B_START ends at the top bits exactly" "[scan]" ) {
 // diagonals
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "diagonal_start sets the right number of bits", "[scan]" ) {
-  REQUIRE(bits_set(BL_START.hi_) + bits_set(BL_START.lo_) == NDIAG);
-  REQUIRE(bits_set(BR_START.hi_) + bits_set(BR_START.lo_) == NDIAG);
-  REQUIRE(bits_set(TL_START.hi_) + bits_set(TL_START.lo_) == NDIAG);
-  REQUIRE(bits_set(TR_START.hi_) + bits_set(TR_START.lo_) == NDIAG);
+  REQUIRE(BL_START.bits_set() == NDIAG);
+  REQUIRE(BR_START.bits_set() == NDIAG);
+  REQUIRE(TL_START.bits_set() == NDIAG);
+  REQUIRE(TR_START.bits_set() == NDIAG);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

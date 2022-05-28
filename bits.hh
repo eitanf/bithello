@@ -59,43 +59,71 @@ concept Bitwise = requires(T a) {
 // can shift one way into the active bitmap or receive bits from it the other way.
 
 template <bool USE_HI>
-struct DB {
+class DB {
  public:
-  bits_t hi_, lo_;
+  constexpr DB() : hi_(0), lo_(0) {}
   constexpr DB(bits_t hi, bits_t lo) : hi_(hi), lo_(lo) {}
+
+  constexpr void set_bit(idx_t);
+  constexpr idx_t bits_set() const { return Othello::bits_set(lo_) + Othello::bits_set(hi_); }
+  constexpr bits_t operator&(bits_t) const;
+  constexpr DB<USE_HI> operator<<(idx_t) const;
+  constexpr DB<USE_HI> operator>>(idx_t) const;
+
+ private:
+  bits_t hi_, lo_; // Reimplementing this with __utin128_t makes no perf difference
 };
 
+using DB_hi = DB<true>;
+using DB_lo = DB<false>;
+
+////////////////////////////////////////////////////////////////////////////////
+// Set a single bit:
+template <bool USE_HI>
+constexpr void
+DB<USE_HI>::set_bit(idx_t bit)
+{
+  if constexpr (USE_HI) {
+    hi_ = set(hi_, bit);
+  } else {
+    lo_ = set(lo_, bit);
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 // Logical & operators depending on the class:
 template <bool USE_HI>
 constexpr bits_t
-operator&(bits_t bits, DB<USE_HI> db)
+DB<USE_HI>::operator&(bits_t bits) const
 {
-  return bits & (USE_HI? db.hi_ : db.lo_);
+  if constexpr (USE_HI) {
+    return bits & hi_;
+  } else {
+    return bits & lo_;
+  }
 }
 
 template <bool USE_HI>
 constexpr bits_t
-operator&(DB<USE_HI> db, bits_t bits) { return bits & db; }
+operator&(bits_t bits, DB<USE_HI> db) { return db & bits; }
 
+////////////////////////////////////////////////////////////////////////////////
 // Logical shift operators that work on both DB_hi and DB_lo:
 template <bool USE_HI>
 constexpr DB<USE_HI>
-operator<<(DB<USE_HI> db, idx_t count)
+DB<USE_HI>::operator<<(idx_t count) const
 {
   assert(count < N2 && "Large shifting is undefined behavior");
-  return DB<USE_HI>((db.hi_ << count) | (db.lo_ >> (N2 - count)), db.lo_ << count);
+  return DB<USE_HI>((hi_ << count) | (lo_ >> (N2 - count)), lo_ << count);
 }
 
 template <bool USE_HI>
 constexpr DB<USE_HI>
-operator>>(DB<USE_HI> db, idx_t count)
+DB<USE_HI>::operator>>(idx_t count) const
 {
   assert(count < N2 && "Large shifting is undefined behavior");
-  return DB<USE_HI>((db.hi_ >> count),  (db.hi_ << (N2 - count)) | db.lo_ >> count);
+  return DB<USE_HI>((hi_ >> count),  (hi_ << (N2 - count)) | lo_ >> count);
 }
-
-////////////////
-using DB_hi = DB<true>;
-using DB_lo = DB<false>;
 
 } // namespace

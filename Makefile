@@ -1,4 +1,4 @@
-CXX=g++-11
+CXX=g++-11 # clang++-13 also works
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
 OPTFLAGS=-O0 -g
 OPTFLAGS=-O3 -DNDEBUG -march=native -funroll-loops -DBENCHMARK  #-g -pg
@@ -34,7 +34,7 @@ test_mcts: test_mcts.o mcts_node.o mcts_player.o board.o moves.o random_player.o
 test_mcts.o: test_mcts.cc mcts_node.hh stop.hh player.hh moves.hh
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
-bithello.o: bithello.cc stop.hh mcts_node.hh player.hh moves.hh scan.hh
+bithello.o: bithello.cc stop.hh mcts_node.hh player.hh moves.hh scan.hh bits.hh
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
 %.o: %.cc %.hh
