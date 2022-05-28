@@ -200,14 +200,16 @@ template <Next NEXT>
 constexpr inline bits_t
 find_flipped(bits_t start, bits_t mine, bits_t theirs, NEXT next)
 {
+  bits_t ret = 0;
+
   // First, ensure that the starting position isn't on the wrong edge:
   constexpr auto in = inside(next);
   if (!(start & in)) {
-    return bits_t(0);
+    return ret;
   }
 
   // Now, find how many opponent's pieces can be found in this direction:
-  bits_t mask = next(start), ret = 0;
+  bits_t mask = next(start);
   for (; in & mask & theirs; mask = next(mask)) {
     ret |= mask;
   }

@@ -6,8 +6,6 @@
 
 #include "player.hh"
 
-#include <random>
-
 namespace Othello {
 
 class RandomPlayer : public Player {
@@ -26,7 +24,9 @@ class RandomPlayer : public Player {
   virtual void game_over(Board) const {};
 
  private:
-  mutable std::default_random_engine generator_;
+  mutable __uint128_t rstate_; // PRNG state
+
+  uint64_t lehmer64() const; // Lehmer's PRNG
 };
 
 } // namespace
