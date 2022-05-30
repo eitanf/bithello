@@ -59,6 +59,8 @@ constexpr inline bits_t legal_moves(MASK mask, NEXT next, bits_t mine, bits_t th
 template <Next NEXT>
 constexpr inline bits_t find_flipped(bits_t start, bits_t mine, bits_t theirs, NEXT next);
 
+// Rturn a bitmap of all the positions that get flipped from making a move at `pos`:
+bits_t all_flipped(bits_t mine, bits_t theirs, bits_t pos);
 
 // Is the current position showing one of my pieces?
 constexpr inline bits_t is_mine(bits_t mine) {

@@ -92,16 +92,7 @@ effect_move(const Board& board, Color curp, bits_t pos)
   assert(!(pos & mine) && "Move position can't already be mine");
   assert(!(pos & theirs) && "Move position can't already be theirs");
 
-  const bits_t bits_flipped =
-      find_flipped(pos, mine, theirs, L2R)
-    | find_flipped(pos, mine, theirs, R2L)
-    | find_flipped(pos, mine, theirs, T2B)
-    | find_flipped(pos, mine, theirs, B2T)
-    | find_flipped(pos, mine, theirs, BL2TR)
-    | find_flipped(pos, mine, theirs, BR2TL)
-    | find_flipped(pos, mine, theirs, TL2BR)
-    | find_flipped(pos, mine, theirs, TR2BL);
-
+  const bits_t bits_flipped = all_flipped(mine, theirs, pos);
   assert(bits_flipped && "Can't effect a move that flips nothing!");
 
   const bits_t newm = (mine ^ bits_flipped) | pos;
@@ -109,6 +100,22 @@ effect_move(const Board& board, Color curp, bits_t pos)
   return (curp == Color::DARK)? Board(newm, newt) : Board(newt, newm);
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// all_flipped returns a bitmap of all the positions that get flipped from
+// making a move at `pos`.
+bits_t
+all_flipped(bits_t mine, bits_t theirs, bits_t pos)
+{
+  return find_flipped(pos, mine, theirs, L2R)
+       | find_flipped(pos, mine, theirs, R2L)
+       | find_flipped(pos, mine, theirs, T2B)
+       | find_flipped(pos, mine, theirs, B2T)
+       | find_flipped(pos, mine, theirs, BL2TR)
+       | find_flipped(pos, mine, theirs, BR2TL)
+       | find_flipped(pos, mine, theirs, TL2BR)
+       | find_flipped(pos, mine, theirs, TR2BL);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Run an interactive two-player game from a given starting point

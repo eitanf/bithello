@@ -1,7 +1,7 @@
 CXX=g++-11 # clang++-13 also works
 CXXFLAGS=-Wall -Wextra -pedantic -Werror -std=c++2a
-OPTFLAGS=-O0 -g
 OPTFLAGS=-O3 -DNDEBUG -march=native -funroll-loops -DBENCHMARK  #-g -pg
+OPTFLAGS=-O0 -g
 LDFLAGS=$(CXXFLAGS) -pthread -flto # -pg
 OBJ=$(SRC:.cc=.o)
 

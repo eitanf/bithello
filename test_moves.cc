@@ -15,17 +15,6 @@
 using namespace Othello;
 using enum Color;
 
-////////////////////////////////////////////////////////////////////////////////
-// Helper to set a single piece on a board:
-
-constexpr Board bset(Board board, Color color, bits_t pos)
-{
-  if (color == DARK) {
-    return Board(board.dark_ | pos, board.light_);
-  } else {
-    return Board(board.dark_, board.light_ | pos);
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "legal_moves finds all possible moves -- dense", "[moves]" ) {
@@ -398,7 +387,7 @@ TEST_CASE( "effect_moves changes all flipped bits", "[moves]" ) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST_CASE( "effect_moves changes nothing when no legal moves", "[moves]" ) {
+TEST_CASE( "find_flipped finds nothing when no legal moves", "[moves]" ) {
   SECTION( "horizontal and vertical" ) {
     Board b({
         "ooo..xxx",
@@ -411,22 +400,14 @@ TEST_CASE( "effect_moves changes nothing when no legal moves", "[moves]" ) {
         "xxx..ooo"
       });
 
-    REQUIRE(effect_move(b, DARK, setpos(1, 2)) ==
-            bset(b, DARK, setpos(1, 2)));
-    REQUIRE(effect_move(b, LIGHT, setpos(1, 2)) ==
-            bset(b, LIGHT, setpos(1, 2)));
-    REQUIRE(effect_move(b, DARK, setpos(2, 6)) ==
-            bset(b, DARK, setpos(2, 6)));
-    REQUIRE(effect_move(b, LIGHT, setpos(2, 6)) ==
-            bset(b, LIGHT, setpos(2, 6)));
-    REQUIRE(effect_move(b, DARK, setpos(7, 3)) ==
-            bset(b, DARK, setpos(7, 3)));
-    REQUIRE(effect_move(b, LIGHT, setpos(7, 3)) ==
-            bset(b, LIGHT, setpos(7, 3)));
-    REQUIRE(effect_move(b, DARK, setpos(7, 4)) ==
-            bset(b, DARK, setpos(7, 4)));
-    REQUIRE(effect_move(b, LIGHT, setpos(7, 4)) ==
-            bset(b, LIGHT, setpos(7, 4)));
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(7, 3)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(7, 3)) == 0);
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(7, 4)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(7, 4)) == 0);
   }
 
   SECTION ( "diagonal" ) {
@@ -441,27 +422,19 @@ TEST_CASE( "effect_moves changes nothing when no legal moves", "[moves]" ) {
         "oooo.ooo"
       });
 
-    REQUIRE(effect_move(b, DARK, setpos(1, 2)) ==
-            bset(b, DARK, setpos(1, 2)));
-    REQUIRE(effect_move(b, LIGHT, setpos(1, 2)) ==
-            bset(b, LIGHT, setpos(1, 2)));
-    REQUIRE(effect_move(b, DARK, setpos(2, 6)) ==
-            bset(b, DARK, setpos(2, 6)));
-    REQUIRE(effect_move(b, LIGHT, setpos(2, 6)) ==
-            bset(b, LIGHT, setpos(2, 6)));
-    REQUIRE(effect_move(b, DARK, setpos(6, 2)) ==
-            bset(b, DARK, setpos(6, 2)));
-    REQUIRE(effect_move(b, LIGHT, setpos(6, 2)) ==
-            bset(b, LIGHT, setpos(6, 2)));
-    REQUIRE(effect_move(b, DARK, setpos(5, 7)) ==
-            bset(b, DARK, setpos(5, 7)));
-    REQUIRE(effect_move(b, LIGHT, setpos(5, 7)) ==
-            bset(b, LIGHT, setpos(5, 7)));
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(5, 7)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(5, 7)) == 0);
+    REQUIRE(all_flipped(b.dark_, b.light_, setpos(6, 2)) == 0);
+    REQUIRE(all_flipped(b.light_, b.dark_, setpos(6, 2)) == 0);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST_CASE( "flip_bits flips exactly the correct bits -- corner", "[moves]" ) {
+TEST_CASE( "find_flipped finds exactly the correct bits -- corner", "[moves]" ) {
   Board b({
     "...xxxxx",
     ".x.xxxxx",
