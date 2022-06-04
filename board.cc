@@ -42,9 +42,9 @@ operator<<(std::ostream& out, Board board)
 {
   for (idx_t r = 0; r < N; ++r) {
     for (idx_t c = 0; c < N; ++c) {
-      if (test(board.light_, r, c)) {
+      if (test(board.light(), r, c)) {
         out << "o";
-      } else if (test(board.dark_, r, c)) {
+      } else if (test(board.dark(), r, c)) {
         out << "x";
       } else {
         out << ".";

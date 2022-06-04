@@ -58,9 +58,9 @@ TextPlayer::display_moves(Board board, bits_t valid, const char charset[]) const
         str += NUM_COLOR;
         str += charset[symbol++];
         str += BG_COLOR;
-      } else if (test(board.dark_, r, c)) {
+      } else if (test(board.dark(), r, c)) {
         str += DARK_STR + BG_COLOR;
-      } else if (test(board.light_, r, c)) {
+      } else if (test(board.light(), r, c)) {
         str += LIGHT_STR + BG_COLOR;
       } else {
         str += " ";
@@ -99,8 +99,8 @@ TextPlayer::get_move(Board board, bits_t moves) const
   const auto nlegal = bits_set(moves);
   assert(nlegal && "Must have at least one legal move to ask for any");
 
-  std::cout << "\n" + DARK_STR << ": " << bits_set(board.dark_) << " " <<
-      LIGHT_STR << ": " << bits_set(board.light_) << "    " <<
+  std::cout << "\n" + DARK_STR << ": " << bits_set(board.dark()) << " " <<
+      LIGHT_STR << ": " << bits_set(board.light()) << "    " <<
       "Legal moves for " <<
     ((color_ == Color::DARK)? DARK_STR : LIGHT_STR) <<
     ":\n" <<
@@ -161,8 +161,8 @@ void
 TextPlayer::game_over(Board board) const
 {
   std::cout << "Final board:\n" << display_moves(board, 0, "");
-  std::cout << "Count for " << DARK_STR << ": " << bits_set(board.dark_) <<
-      "\tcount for " << LIGHT_STR << ": " << bits_set(board.light_) << std::endl;
+  std::cout << "Count for " << DARK_STR << ": " << bits_set(board.dark()) <<
+      "\tcount for " << LIGHT_STR << ": " << bits_set(board.light()) << std::endl;
 
 }
 

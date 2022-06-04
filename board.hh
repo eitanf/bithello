@@ -21,11 +21,9 @@ namespace Othello {
 // A complete game board consists of two bitmaps, each for one color
 class Board {
  public:
-  const bits_t dark_;
-  const bits_t light_;
-
   ~Board() = default;
   Board(const Board&) = default;
+  Board(Board&&) = default;
   constexpr Board(bits_t dark, bits_t light) : dark_(dark), light_(light) {}
 
   // Initialize a board from rows: strings of optional dark/light pieces
@@ -47,10 +45,14 @@ class Board {
     return N2 - bits_set(dark_) - bits_set(light_);
   }
 
+  constexpr bits_t dark() const { return dark_; }
+  constexpr bits_t light() const { return light_; }
  private:
   // Given a vector of row strings, return a bitmap to all positions in all rows
   // that have the given symbol in the string position.
   bits_t mark_bits(const std::vector<std::string>& rows, char symbol) const;
+  const bits_t dark_;
+  const bits_t light_;
 };
 
 

@@ -30,54 +30,54 @@ TEST_CASE( "legal_moves finds all possible moves -- dense", "[moves]" ) {
     });
 
   SECTION( "L2R" ) {
-    REQUIRE(legal_moves(L_START, L2R, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(L_START, L2R, b.dark(), b.light()) ==
      0b00100100'00000000'00000000'00000000'00000000'00000000'00000000'00000000);
-    REQUIRE(legal_moves(L_START, L2R, b.light_, b.dark_) ==
+    REQUIRE(legal_moves(L_START, L2R, b.light(), b.dark()) ==
      0b00000000'00100000'00000000'00000000'00000000'10010000'01000000'00000000);
   }
 
   SECTION( "R2L" ) {
-    REQUIRE(legal_moves(R_START, R2L, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(R_START, R2L, b.dark(), b.light()) ==
      0b00000000'00100100'00000100'00001000'00000000'00010000'00000010'00000010);
-    REQUIRE(legal_moves(R_START, R2L, b.light_, b.dark_) ==
+    REQUIRE(legal_moves(R_START, R2L, b.light(), b.dark()) ==
      0b00000100'00000000'00000000'00000000'00001000'00000000'00000000'00000000);
   }
 
   SECTION( "T2B" ) {
-    REQUIRE(legal_moves(T_START, T2B, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(T_START, T2B, b.dark(), b.light()) ==
      0b00000000'00100000'00000101'00000000'00000000'00010000'00000000'00000000);
-    REQUIRE(legal_moves(T_START, T2B, b.light_, b.dark_) ==
+    REQUIRE(legal_moves(T_START, T2B, b.light(), b.dark()) ==
      0b10000000'00000000'00000000'00000000'00001000'00000000'00000000'00000000);
   }
 
   SECTION( "B2T" ) {
-    REQUIRE(legal_moves(B_START, B2T, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(B_START, B2T, b.dark(), b.light()) ==
      0b00000000'00000000'00000000'00001000'00000010'10000000'00000000'00000001);
-    REQUIRE(legal_moves(B_START, B2T, b.light_, b.dark_) ==
+    REQUIRE(legal_moves(B_START, B2T, b.light(), b.dark()) ==
      0b00000000'00000000'00000000'00000000'00000000'00010000'01000000'00000000);
   }
 
   SECTION( "BL2TR" ) {
-    REQUIRE(legal_moves(BL_START, BL2TR, b.dark_, b.light_) == setpos(1, 6));
-    REQUIRE(legal_moves(BL_START, BL2TR, b.light_, b.dark_) == setpos(2, 7));
+    REQUIRE(legal_moves(BL_START, BL2TR, b.dark(), b.light()) == setpos(1, 6));
+    REQUIRE(legal_moves(BL_START, BL2TR, b.light(), b.dark()) == setpos(2, 7));
   }
 
   SECTION( "BR2TL" ) {
-    REQUIRE(legal_moves(BR_START, BR2TL, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(BR_START, BR2TL, b.dark(), b.light()) ==
      0b00000000'00000000'00000000'00000000'00000010'00010000'00000000'00000010);
-    REQUIRE(!legal_moves(BR_START, BR2TL, b.light_, b.dark_));
+    REQUIRE(!legal_moves(BR_START, BR2TL, b.light(), b.dark()));
   }
 
   SECTION( "TR2BL" ) {
-    REQUIRE(legal_moves(TR_START, TR2BL, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(TR_START, TR2BL, b.dark(), b.light()) ==
      0b00100100'00000100'00000001'00000000'00000010'00000000'00000000'00000000);
-    REQUIRE(legal_moves(TR_START, TR2BL, b.light_, b.dark_) ==
+    REQUIRE(legal_moves(TR_START, TR2BL, b.light(), b.dark()) ==
      0b00000000'00000000'00000000'00001000'00000000'00010000'00000000'00000000);
   }
 
   SECTION( "TL2BR" ) {
-    REQUIRE(legal_moves(TL_START, TL2BR, b.dark_, b.light_) == setpos(5, 2));
-    REQUIRE(legal_moves(TL_START, TL2BR, b.light_, b.dark_) ==
+    REQUIRE(legal_moves(TL_START, TL2BR, b.dark(), b.light()) == setpos(5, 2));
+    REQUIRE(legal_moves(TL_START, TL2BR, b.light(), b.dark()) ==
      0b00100000'00000000'00000000'00001000'00000000'00000000'00000000'00000000);
   }
 }
@@ -96,28 +96,28 @@ TEST_CASE( "legal_moves finds all possible moves -- triangular", "[moves]" ) {
     });
 
   SECTION( "L2R" ) {
-    REQUIRE(!legal_moves(R_START, R2L, b.dark_, b.light_));
-    REQUIRE(!legal_moves(R_START, R2L, b.light_, b.dark_));
-    REQUIRE(!legal_moves(B_START, B2T, b.dark_, b.light_));
-    REQUIRE(!legal_moves(B_START, B2T, b.light_, b.dark_));
-    REQUIRE(!legal_moves(BL_START, BL2TR, b.dark_, b.light_));
-    REQUIRE(!legal_moves(BL_START, BL2TR, b.light_, b.dark_));
-    REQUIRE(!legal_moves(BR_START, BR2TL, b.dark_, b.light_));
-    REQUIRE(!legal_moves(BR_START, BR2TL, b.light_, b.dark_));
-    REQUIRE(!legal_moves(TR_START, TR2BL, b.dark_, b.light_));
-    REQUIRE(!legal_moves(TR_START, TR2BL, b.light_, b.dark_));
+    REQUIRE(!legal_moves(R_START, R2L, b.dark(), b.light()));
+    REQUIRE(!legal_moves(R_START, R2L, b.light(), b.dark()));
+    REQUIRE(!legal_moves(B_START, B2T, b.dark(), b.light()));
+    REQUIRE(!legal_moves(B_START, B2T, b.light(), b.dark()));
+    REQUIRE(!legal_moves(BL_START, BL2TR, b.dark(), b.light()));
+    REQUIRE(!legal_moves(BL_START, BL2TR, b.light(), b.dark()));
+    REQUIRE(!legal_moves(BR_START, BR2TL, b.dark(), b.light()));
+    REQUIRE(!legal_moves(BR_START, BR2TL, b.light(), b.dark()));
+    REQUIRE(!legal_moves(TR_START, TR2BL, b.dark(), b.light()));
+    REQUIRE(!legal_moves(TR_START, TR2BL, b.light(), b.dark()));
 
-    REQUIRE(legal_moves(L_START, L2R, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(L_START, L2R, b.dark(), b.light()) ==
      0b00000000'00000100'00001000'00010000'00100000'01000000'10000000'00000000);
-    REQUIRE(!legal_moves(L_START, L2R, b.light_, b.dark_));
+    REQUIRE(!legal_moves(L_START, L2R, b.light(), b.dark()));
 
-    REQUIRE(legal_moves(T_START, T2B, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(T_START, T2B, b.dark(), b.light()) ==
      0b00000010'00000100'00001000'00010000'00100000'01000000'00000000'00000000);
-    REQUIRE(!legal_moves(T_START, T2B, b.light_, b.dark_));
+    REQUIRE(!legal_moves(T_START, T2B, b.light(), b.dark()));
 
-    REQUIRE(legal_moves(TL_START, TL2BR, b.dark_, b.light_) ==
+    REQUIRE(legal_moves(TL_START, TL2BR, b.dark(), b.light()) ==
      0b00000100'00001100'00011000'00110000'01100000'11000000'00000000'00000000);
-    REQUIRE(!legal_moves(TL_START, TL2BR, b.light_, b.dark_));
+    REQUIRE(!legal_moves(TL_START, TL2BR, b.light(), b.dark()));
   }
 }
 
@@ -156,11 +156,11 @@ TEST_CASE( "legal_moves stops at board borders", "[moves]" ) {
 
 ////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Inside board computes correctly - R2L", "[moves]" ) {
-  Board b_in({  ".x......" });  // b_in.dark_ == 2
+  Board b_in({  ".x......" });  // b_in.dark() == 2
   Board b_out({ "x......." });
 
-    REQUIRE((inside(R2L) & b_in.dark_) != 0);
-    REQUIRE((inside(R2L) & b_out.dark_) == 0);
+    REQUIRE((inside(R2L) & b_in.dark()) != 0);
+    REQUIRE((inside(R2L) & b_out.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,8 +168,8 @@ TEST_CASE( "Inside board computes correctly - L2R", "[moves]" ) {
   Board b_in({  "......x." });
   Board b_out({ ".......x" });
 
-    REQUIRE((inside(L2R) & b_in.dark_) != 0);
-    REQUIRE((inside(L2R) & b_out.dark_) == 0);
+    REQUIRE((inside(L2R) & b_in.dark()) != 0);
+    REQUIRE((inside(L2R) & b_out.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -177,8 +177,8 @@ TEST_CASE( "Inside board computes correctly - B2T", "[moves]" ) {
   Board b_in({ "", "x" });
   Board b_out({ "x" });
 
-    REQUIRE((inside(B2T) & b_in.dark_) != 0);
-    REQUIRE((inside(B2T) & b_out.dark_) == 0);
+    REQUIRE((inside(B2T) & b_in.dark()) != 0);
+    REQUIRE((inside(B2T) & b_out.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -186,8 +186,8 @@ TEST_CASE( "Inside board computes correctly - T2B", "[moves]" ) {
   Board b_in({ "", "", "", "", "", "", "x", "" });
   Board b_out({ "", "", "", "", "", "", "", "x", });
 
-    REQUIRE((inside(T2B) & b_in.dark_) != 0);
-    REQUIRE((inside(T2B) & b_out.dark_) == 0);
+    REQUIRE((inside(T2B) & b_in.dark()) != 0);
+    REQUIRE((inside(T2B) & b_out.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -197,10 +197,10 @@ TEST_CASE( "Inside board computes correctly - TL2BR", "[moves]" ) {
   Board b_out2({ "", "", "", "", "", "", "", ".......x", });
   Board b_out3({ "", "", "", "", "", "", "", "......x.", });
 
-    REQUIRE((inside(TL2BR) & b_in.dark_) != 0);
-    REQUIRE((inside(TL2BR) & b_out1.dark_) == 0);
-    REQUIRE((inside(TL2BR) & b_out2.dark_) == 0);
-    REQUIRE((inside(TL2BR) & b_out3.dark_) == 0);
+    REQUIRE((inside(TL2BR) & b_in.dark()) != 0);
+    REQUIRE((inside(TL2BR) & b_out1.dark()) == 0);
+    REQUIRE((inside(TL2BR) & b_out2.dark()) == 0);
+    REQUIRE((inside(TL2BR) & b_out3.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,10 +210,10 @@ TEST_CASE( "Inside board computes correctly - TR2BL", "[moves]" ) {
   Board b_out2({ "", "", "", "", "", "", "", "x.......", });
   Board b_out3({ "", "", "", "", "", "", "", "......x.", });
 
-    REQUIRE((inside(TR2BL) & b_in.dark_) != 0);
-    REQUIRE((inside(TR2BL) & b_out1.dark_) == 0);
-    REQUIRE((inside(TR2BL) & b_out2.dark_) == 0);
-    REQUIRE((inside(TR2BL) & b_out3.dark_) == 0);
+    REQUIRE((inside(TR2BL) & b_in.dark()) != 0);
+    REQUIRE((inside(TR2BL) & b_out1.dark()) == 0);
+    REQUIRE((inside(TR2BL) & b_out2.dark()) == 0);
+    REQUIRE((inside(TR2BL) & b_out3.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -223,10 +223,10 @@ TEST_CASE( "Inside board computes correctly - BL2TR", "[moves]" ) {
   Board b_out2({ "", "", "", "", "", "", "", ".......x", });
   Board b_out3({ "...x", "", "", "", "", "", "", "........", });
 
-    REQUIRE((inside(BL2TR) & b_in.dark_) != 0);
-    REQUIRE((inside(BL2TR) & b_out1.dark_) == 0);
-    REQUIRE((inside(BL2TR) & b_out2.dark_) == 0);
-    REQUIRE((inside(BL2TR) & b_out3.dark_) == 0);
+    REQUIRE((inside(BL2TR) & b_in.dark()) != 0);
+    REQUIRE((inside(BL2TR) & b_out1.dark()) == 0);
+    REQUIRE((inside(BL2TR) & b_out2.dark()) == 0);
+    REQUIRE((inside(BL2TR) & b_out3.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -236,10 +236,10 @@ TEST_CASE( "Inside board computes correctly - BR2TL", "[moves]" ) {
   Board b_out2({ "x", "", "", "", "", "", "", "........", });
   Board b_out3({ "", "x", "", "", "", "", "", "........", });
 
-    REQUIRE((inside(BR2TL) & b_in.dark_) != 0);
-    REQUIRE((inside(BR2TL) & b_out1.dark_) == 0);
-    REQUIRE((inside(BR2TL) & b_out2.dark_) == 0);
-    REQUIRE((inside(BR2TL) & b_out3.dark_) == 0);
+    REQUIRE((inside(BR2TL) & b_in.dark()) != 0);
+    REQUIRE((inside(BR2TL) & b_out1.dark()) == 0);
+    REQUIRE((inside(BR2TL) & b_out2.dark()) == 0);
+    REQUIRE((inside(BR2TL) & b_out3.dark()) == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -256,86 +256,86 @@ TEST_CASE( "flip_bits flips exactly the correct bits -- dense", "[moves]" ) {
     });
 
   SECTION( "Row 0" ) {
-    REQUIRE(find_flipped(setpos(0, 0), b.dark_, b.light_, T2B) == setpos(1, 0));
+    REQUIRE(find_flipped(setpos(0, 0), b.dark(), b.light(), T2B) == setpos(1, 0));
 
-    REQUIRE(find_flipped(setpos(0, 1), b.dark_, b.light_, L2R) ==
+    REQUIRE(find_flipped(setpos(0, 1), b.dark(), b.light(), L2R) ==
       0b00000000'00000000'00000000'00000000'00000000'00000000'00000000'00001100);
   }
 
   SECTION ( "Row 1" ) {
-    REQUIRE(find_flipped(setpos(1, 1), b.dark_, b.light_, L2R) ==
+    REQUIRE(find_flipped(setpos(1, 1), b.dark(), b.light(), L2R) ==
       0b00000000'00000000'00000000'00000000'00000000'00000000'00011100'00000000);
 
-    REQUIRE(find_flipped(setpos(1, 6), b.dark_, b.light_, TR2BL) == setpos(2, 5));
-    REQUIRE(find_flipped(setpos(1, 6), b.light_, b.dark_, R2L) == setpos(1, 5));
-    REQUIRE(find_flipped(setpos(1, 6), b.light_, b.dark_, T2B) ==
+    REQUIRE(find_flipped(setpos(1, 6), b.dark(), b.light(), TR2BL) == setpos(2, 5));
+    REQUIRE(find_flipped(setpos(1, 6), b.light(), b.dark(), R2L) == setpos(1, 5));
+    REQUIRE(find_flipped(setpos(1, 6), b.light(), b.dark(), T2B) ==
       0b00000000'00000000'00000000'01000000'01000000'01000000'00000000'00000000);
   }
 
   SECTION( "Row 2" ) {
-    REQUIRE(find_flipped(setpos(2, 4), b.dark_, b.light_, L2R) == setpos(2, 5));
-    REQUIRE(find_flipped(setpos(2, 4), b.dark_, b.light_, TL2BR) == setpos(3, 5));
-    REQUIRE(find_flipped(setpos(2, 4), b.dark_, b.light_, B2T) == setpos(1, 4));
-    REQUIRE(find_flipped(setpos(2, 4), b.light_, b.dark_, BL2TR) == setpos(1, 5));
-    REQUIRE(find_flipped(setpos(2, 4), b.light_, b.dark_, R2L) == setpos(2, 3));
-    REQUIRE(find_flipped(setpos(2, 4), b.light_, b.dark_, T2B) == setpos(3, 4));
+    REQUIRE(find_flipped(setpos(2, 4), b.dark(), b.light(), L2R) == setpos(2, 5));
+    REQUIRE(find_flipped(setpos(2, 4), b.dark(), b.light(), TL2BR) == setpos(3, 5));
+    REQUIRE(find_flipped(setpos(2, 4), b.dark(), b.light(), B2T) == setpos(1, 4));
+    REQUIRE(find_flipped(setpos(2, 4), b.light(), b.dark(), BL2TR) == setpos(1, 5));
+    REQUIRE(find_flipped(setpos(2, 4), b.light(), b.dark(), R2L) == setpos(2, 3));
+    REQUIRE(find_flipped(setpos(2, 4), b.light(), b.dark(), T2B) == setpos(3, 4));
 
-    REQUIRE(find_flipped(setpos(2, 7), b.dark_, b.light_, T2B) ==
+    REQUIRE(find_flipped(setpos(2, 7), b.dark(), b.light(), T2B) ==
       0b00000000'00000000'00000000'10000000'10000000'00000000'00000000'00000000);
-    REQUIRE(find_flipped(setpos(2, 7), b.light_, b.dark_, TR2BL) == setpos(3, 6));
+    REQUIRE(find_flipped(setpos(2, 7), b.light(), b.dark(), TR2BL) == setpos(3, 6));
   }
 
   SECTION( "Row 3" ) {
-    REQUIRE(find_flipped(setpos(3, 1), b.dark_, b.light_, BL2TR) ==
+    REQUIRE(find_flipped(setpos(3, 1), b.dark(), b.light(), BL2TR) ==
        0b00000000'00000000'00000000'00000000'00000000'00000100'00001000'00000000);
-    REQUIRE(find_flipped(setpos(3, 1), b.dark_, b.light_, T2B) ==
+    REQUIRE(find_flipped(setpos(3, 1), b.dark(), b.light(), T2B) ==
        0b00000000'00000000'00000010'00000010'00000000'00000000'00000000'00000000);
-    REQUIRE(find_flipped(setpos(3, 1), b.dark_, b.light_, TL2BR) ==
+    REQUIRE(find_flipped(setpos(3, 1), b.dark(), b.light(), TL2BR) ==
        0b00000000'00000000'00001000'00000100'00000000'00000000'00000000'00000000);
 
-    REQUIRE(find_flipped(setpos(3, 3), b.light_, b.dark_, B2T) == setpos(2, 3));
-    REQUIRE(find_flipped(setpos(3, 3), b.light_, b.dark_, L2R) == setpos(3, 4));
+    REQUIRE(find_flipped(setpos(3, 3), b.light(), b.dark(), B2T) == setpos(2, 3));
+    REQUIRE(find_flipped(setpos(3, 3), b.light(), b.dark(), L2R) == setpos(3, 4));
   }
 
   SECTION( "Row 4" ) {
-    REQUIRE(find_flipped(setpos(4, 3), b.dark_, b.light_, L2R) ==
+    REQUIRE(find_flipped(setpos(4, 3), b.dark(), b.light(), L2R) ==
        0b00000000'00000000'00000000'00110000'00000000'00000000'00000000'00000000);
-    REQUIRE(find_flipped(setpos(4, 3), b.dark_, b.light_, T2B) ==
+    REQUIRE(find_flipped(setpos(4, 3), b.dark(), b.light(), T2B) ==
        0b00000000'00001000'00001000'00000000'00000000'00000000'00000000'00000000);
-    REQUIRE(find_flipped(setpos(4, 3), b.light_, b.dark_, BL2TR) == setpos(3, 4));
-    REQUIRE(find_flipped(setpos(4, 3), b.light_, b.dark_, BR2TL) == setpos(3, 2));
+    REQUIRE(find_flipped(setpos(4, 3), b.light(), b.dark(), BL2TR) == setpos(3, 4));
+    REQUIRE(find_flipped(setpos(4, 3), b.light(), b.dark(), BR2TL) == setpos(3, 2));
   }
 
   SECTION( "Row 5" ) {
-    REQUIRE(find_flipped(setpos(5, 0), b.dark_, b.light_, B2T) == setpos(4, 0));
-    REQUIRE(find_flipped(setpos(5, 0), b.dark_, b.light_, BL2TR) == setpos(4, 1));
+    REQUIRE(find_flipped(setpos(5, 0), b.dark(), b.light(), B2T) == setpos(4, 0));
+    REQUIRE(find_flipped(setpos(5, 0), b.dark(), b.light(), BL2TR) == setpos(4, 1));
 
-    REQUIRE(find_flipped(setpos(5, 2), b.dark_, b.light_, B2T) == setpos(4, 2));
-    REQUIRE(find_flipped(setpos(5, 2), b.dark_, b.light_, BR2TL) == setpos(4, 1));
-    REQUIRE(find_flipped(setpos(5, 2), b.dark_, b.light_, L2R) ==
+    REQUIRE(find_flipped(setpos(5, 2), b.dark(), b.light(), B2T) == setpos(4, 2));
+    REQUIRE(find_flipped(setpos(5, 2), b.dark(), b.light(), BR2TL) == setpos(4, 1));
+    REQUIRE(find_flipped(setpos(5, 2), b.dark(), b.light(), L2R) ==
        0b00000000'00000000'01111000'00000000'00000000'00000000'00000000'00000000);
   }
 
   SECTION( "Row 6" ) {
-    REQUIRE(find_flipped(setpos(6, 2), b.dark_, b.light_, L2R) == setpos(6, 3));
-    REQUIRE(find_flipped(setpos(6, 2), b.dark_, b.light_, BL2TR) ==
+    REQUIRE(find_flipped(setpos(6, 2), b.dark(), b.light(), L2R) == setpos(6, 3));
+    REQUIRE(find_flipped(setpos(6, 2), b.dark(), b.light(), BL2TR) ==
        0b00000000'00000000'00001000'00010000'00100000'00000000'00000000'00000000);
 
-    REQUIRE(find_flipped(setpos(6, 5), b.dark_, b.light_, L2R) == setpos(6, 6));
-    REQUIRE(find_flipped(setpos(6, 5), b.dark_, b.light_, B2T) ==
+    REQUIRE(find_flipped(setpos(6, 5), b.dark(), b.light(), L2R) == setpos(6, 6));
+    REQUIRE(find_flipped(setpos(6, 5), b.dark(), b.light(), B2T) ==
        0b00000000'00000000'00100000'00100000'00100000'00100000'00000000'00000000);
-    REQUIRE(find_flipped(setpos(6, 5), b.light_, b.dark_, R2L) == setpos(6, 4));
+    REQUIRE(find_flipped(setpos(6, 5), b.light(), b.dark(), R2L) == setpos(6, 4));
   }
 
   SECTION( "Row 7" ) {
-    REQUIRE(find_flipped(setpos(7, 2), b.dark_, b.light_, R2L) == setpos(7, 1));
-    REQUIRE(find_flipped(setpos(7, 2), b.dark_, b.light_, BL2TR) ==
+    REQUIRE(find_flipped(setpos(7, 2), b.dark(), b.light(), R2L) == setpos(7, 1));
+    REQUIRE(find_flipped(setpos(7, 2), b.dark(), b.light(), BL2TR) ==
        0b00000000'00001000'00010000'00100000'00000000'00000000'00000000'00000000);
-    REQUIRE(find_flipped(setpos(7, 2), b.light_, b.dark_, L2R) == setpos(7, 3));
+    REQUIRE(find_flipped(setpos(7, 2), b.light(), b.dark(), L2R) == setpos(7, 3));
 
-    REQUIRE(find_flipped(setpos(7, 5), b.dark_, b.light_, R2L) == setpos(7, 4));
-    REQUIRE(find_flipped(setpos(7, 5), b.dark_, b.light_, BL2TR) == setpos(6, 6));
-    REQUIRE(find_flipped(setpos(7, 5), b.light_, b.dark_, BR2TL) == setpos(6, 4));
+    REQUIRE(find_flipped(setpos(7, 5), b.dark(), b.light(), R2L) == setpos(7, 4));
+    REQUIRE(find_flipped(setpos(7, 5), b.dark(), b.light(), BL2TR) == setpos(6, 6));
+    REQUIRE(find_flipped(setpos(7, 5), b.light(), b.dark(), BR2TL) == setpos(6, 4));
   }
 }
 
@@ -400,14 +400,14 @@ TEST_CASE( "find_flipped finds nothing when no legal moves", "[moves]" ) {
         "xxx..ooo"
       });
 
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(1, 2)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(1, 2)) == 0);
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(2, 6)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(2, 6)) == 0);
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(7, 3)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(7, 3)) == 0);
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(7, 4)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(7, 4)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(7, 3)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(7, 3)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(7, 4)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(7, 4)) == 0);
   }
 
   SECTION ( "diagonal" ) {
@@ -422,14 +422,14 @@ TEST_CASE( "find_flipped finds nothing when no legal moves", "[moves]" ) {
         "oooo.ooo"
       });
 
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(1, 2)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(1, 2)) == 0);
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(2, 6)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(2, 6)) == 0);
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(5, 7)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(5, 7)) == 0);
-    REQUIRE(all_flipped(b.dark_, b.light_, setpos(6, 2)) == 0);
-    REQUIRE(all_flipped(b.light_, b.dark_, setpos(6, 2)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(1, 2)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(2, 6)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(5, 7)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(5, 7)) == 0);
+    REQUIRE(all_flipped(b.dark(), b.light(), setpos(6, 2)) == 0);
+    REQUIRE(all_flipped(b.light(), b.dark(), setpos(6, 2)) == 0);
   }
 }
 
@@ -446,14 +446,14 @@ TEST_CASE( "find_flipped finds exactly the correct bits -- corner", "[moves]" ) 
     "....x..."
     });
 
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, L2R) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, R2L) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, T2B) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, B2T) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, BR2TL) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, BL2TR) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, TR2BL) == 0);
-    REQUIRE(find_flipped(setpos(0, 0), b.light_, b.dark_, TL2BR) ==
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), L2R) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), R2L) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), T2B) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), B2T) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), BR2TL) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), BL2TR) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), TR2BL) == 0);
+    REQUIRE(find_flipped(setpos(0, 0), b.light(), b.dark(), TL2BR) ==
       0b00000000'00000000'00000000'00000000'00000000'00000100'00000010'00000000);
 }
 

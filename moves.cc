@@ -54,8 +54,8 @@ namespace Othello {
 bits_t
 all_legal_moves(Board board, Color curp)
 {
-  const bits_t mine = (curp == Color::DARK)? board.dark_ : board.light_;
-  const bits_t theirs = (curp == Color::DARK)? board.light_ : board.dark_;
+  const bits_t mine = (curp == Color::DARK)? board.dark() : board.light();
+  const bits_t theirs = (curp == Color::DARK)? board.light() : board.dark();
 
   const bits_t ret =
       legal_moves(L_START, L2R, mine, theirs)
@@ -85,8 +85,8 @@ all_legal_moves(Board board, Color curp)
 Board
 effect_move(const Board& board, Color curp, bits_t pos)
 {
-  const bits_t mine = (curp == Color::DARK)? board.dark_ : board.light_;
-  const bits_t theirs = (curp == Color::DARK)? board.light_ : board.dark_;
+  const bits_t mine = (curp == Color::DARK)? board.dark() : board.light();
+  const bits_t theirs = (curp == Color::DARK)? board.light() : board.dark();
 
   assert(pos && !(pos & (pos - 1)) && "Move position must be a single set bit");
   assert(!(pos & mine) && "Move position can't already be mine");
@@ -136,7 +136,7 @@ play_game(Board board, player_ptr_t me, player_ptr_t opponent)
     if (!legal) {  // Nobody has moves, game over!
       me->game_over(board);
       opponent->game_over(board);
-      return bits_set(board.dark_) - bits_set(board.light_);
+      return bits_set(board.dark()) - bits_set(board.light());
     }
   }
 
@@ -144,7 +144,7 @@ play_game(Board board, player_ptr_t me, player_ptr_t opponent)
   while (!pos) {
     pos = me->get_move(board, legal);
     if (!pos) {  // Undo requested
-      if (bits_set(board.dark_) + bits_set(board.light_) < 6) {
+      if (bits_set(board.dark()) + bits_set(board.light()) < 6) {
         std::cerr << "Can't undo yet!\n";
       } else {
         return UNDO[int(me->color_)];

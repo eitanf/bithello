@@ -26,8 +26,11 @@ constexpr bits_t ONE(1);
 ////////////////////////////////////////////////////////////////////////////////
 // Utility functions to handle bitmaps/boards:
 
-// Translate row/col position into bit index:
+// Translate row/col position into bit index and vise versa:
 constexpr idx_t pos2bit(idx_t row, idx_t col) { return row * N + col; }
+constexpr idx_t pos2bit(bits_t pos) { return __builtin_ffs(pos) - 1; }
+constexpr idx_t bit2col(idx_t pos) { return pos % N; }
+constexpr idx_t bit2row(idx_t pos) { return pos / N; }
 
 // set/test/clear:
 constexpr bits_t set(bits_t bits, idx_t bit) { return bits | (ONE << bit); }
