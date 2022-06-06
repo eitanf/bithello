@@ -7,6 +7,7 @@
  */
 
 #include <cassert>
+#include <chrono>
 #include <cstring>
 #include <climits>
 #include <iostream>
@@ -86,7 +87,7 @@ parse_player_options(Color color, int& argc, char**& argv)
       if (!argc-- || (duration = atoll(*argv++)) < 1) {
         return nullptr;
       }
-      stopper = shared_ptr<StopCondition>(new StopByDuration(duration));
+      stopper = shared_ptr<StopCondition>(new StopByDuration(chrono::milliseconds(duration)));
 
     } else {
       stopper = shared_ptr<StopCondition>(new StopByMoves(DEFAULT_MOVES));

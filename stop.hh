@@ -39,11 +39,12 @@ using stop_ptr_t = std::shared_ptr<StopCondition>;
 /////////////////////////////////////
 // This class stops search after a given duration in milliseconds
 class StopByDuration : public StopCondition {
+  using duration_t = std::chrono::duration<uint64_t, std::milli>;
+  duration_t duration_;
   std::chrono::steady_clock::time_point begin_;
-  const long duration_;
 
  public:
-  StopByDuration(uint64_t duration = 1000) : duration_(duration) {}
+  StopByDuration(duration_t duration) : duration_(duration), begin_() {}
   virtual ~StopByDuration();
   virtual void reset();
   virtual bool operator()();

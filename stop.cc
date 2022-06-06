@@ -19,7 +19,7 @@ bool
 StopByDuration::operator()()
 {
     const auto now = steady_clock::now();
-    const auto done = duration_cast<milliseconds>(now - begin_).count() >= duration_;
+    const auto done = now - begin_ >= duration_;
   return done;
 }
 
