@@ -53,7 +53,7 @@ MCTSPlayer::compute_nodes(Board board, bits_t moves) const
   for (bits_t pos = 1; pos; pos <<= 1) {
     if (moves & pos) {
       const auto newb = effect_move(board, color_, pos);
-      nodes.push_back(std::make_pair(pos, MCTSNode(newb, opponent_of(color_))));
+      nodes.push_back(MCTSNode(newb, opponent_of(color_), pos));
     }
   }
   return nodes;
@@ -69,11 +69,11 @@ MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
 
   const auto best = std::max_element(nodes.cbegin(), nodes.cend(),
       [&](const auto& n1, const auto& n2) {
-        return n1.second.win_odds(color_) < n2.second.win_odds(color_);
+        return n1.win_odds(color_) < n2.win_odds(color_);
       });
 
-  assert(best->second.win_odds(color_) >= 0);
-  return best->first;
+  assert(best->win_odds(color_) >= 0);
+  return best->original_move();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
   int idx = rand() % nmoves;  // Round-robin index into nodes
 
   for (; !stop(); idx = (idx + 1) % nmoves) {
-    const auto tile_diff = play_game(nodes[idx].second.board(), &opp, &myp); // flip players
+    const auto tile_diff = play_game(nodes[idx].board(), &opp, &myp); // flip players
     if (tile_diff > 0) {  // Record winner, if any:
       d_wins[idx]++;
     } else if (tile_diff < 0) {
@@ -114,13 +114,13 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
   }
 
   // Update final list of wins (thread-safe)
-  std::scoped_lock guard(mut);
+  std::unique_lock guard(mut);
   for (idx = 0; idx < nmoves; ++idx) {
-    nodes[idx].second.count_wins(d_wins[idx], l_wins[idx]);
+    nodes[idx].count_wins(d_wins[idx], l_wins[idx]);
   }
 #ifdef BENCHMARK
   total_plays_ += plays;
-  total_moves_ += plays * nodes[0].second.board().moves_left();
+  total_moves_ += plays * nodes[0].board().moves_left();
 #endif
 }
 
@@ -138,7 +138,6 @@ MCTSPlayer::get_move(Board board, bits_t moves) const
   auto nodes = compute_nodes(board, moves);
   assert(bits_set(moves) == nodes.size());
   assert(nodes.size() > 0);
-
 
   std::vector<std::thread> threads;
 

@@ -32,8 +32,7 @@ class MCTSPlayer : public Player {
   virtual void game_over(Board) const {};
 
  private:
-  // A pair with a new move and the resulting board (in node)
-  using nodes_t = std::vector<std::pair<bits_t, MCTSNode>>;
+  using nodes_t = std::vector<MCTSNode>;
 
   stop_ptr_t stop_;
   unsigned nthread_;

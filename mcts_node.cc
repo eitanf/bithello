@@ -9,15 +9,6 @@
 namespace Othello {
 
 ////////////////////////////////////////////////////////////////////////////////
-MCTSNode::MCTSNode(Board board, Color turn, const MCTSNode* parent)
-  : board_(board),
-    d_wins_(0), l_wins_(0),
-    parent_(reinterpret_cast<size_t>(parent) | int(turn))
-{
-  assert(!(reinterpret_cast<size_t>(parent) & 1));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void
 MCTSNode::mark_win(Color whom)
 {
@@ -35,9 +26,8 @@ MCTSNode::count_wins(uint32_t d_wins, uint32_t l_wins)
   d_wins_ += d_wins;
   l_wins_ += l_wins;
 
-  const auto parent = reinterpret_cast<MCTSNode*>(parent_ & ~1);
-  if (parent) {
-    parent->count_wins(d_wins, l_wins);
+  if (parent_) {
+    parent_->count_wins(d_wins, l_wins);
   }
 }
 

@@ -17,12 +17,11 @@
  * dark and light players that have been encountered in the random tree search.
  * Each node also holds a pointer to the parent node, the board from which this
  * move was derived (or nullptr if its the top level of the memoized tree).
- * This pointer is tagged to also hold the color for the player whose turn
- * it is at this node, so that the LSB has the same value as its color.
  */
 
 #pragma once
 
+#include <cassert>
 #include <ostream>
 
 #include "bits.hh"
@@ -35,7 +34,11 @@ namespace Othello {
 // Tree node data
 class MCTSNode {
  public:
-  MCTSNode(Board board, Color turn, const MCTSNode* parent = nullptr);
+  MCTSNode(Board board, Color turn, bits_t mv = 0, MCTSNode* parent = nullptr)
+  : board_(board), player_(turn), move_(mv),
+    d_wins_(0), l_wins_(0), parent_(parent)
+  {}
+
   ~MCTSNode() = default;
 
   // Signal that a random game that started in this node was won by `who`
@@ -51,15 +54,20 @@ class MCTSNode {
   const Board& board() const { return board_; }
 
   // Return the color of the current player
-  Color turn() const { return Color(parent_ & 1); }
+  Color turn() const { return player_; }
+
+  // Return the move that spawned this board/node
+  bits_t original_move() const { assert(move_); return move_; }
 
   std::ostream& operator<<(std::ostream&);
 
  private:
-  Board       board_;
-  uint32_t    d_wins_;
-  uint32_t    l_wins_;
-  size_t      parent_;
+  Board      board_;  // The current board
+  Color      player_; // The current player
+  bits_t     move_;   // The (previous) move that led to this board
+  uint32_t   d_wins_; // How many times dark won from this board
+  uint32_t   l_wins_; // How many times light won from this board
+  MCTSNode*  parent_; // Parent node (if any)
 };
 
 } // namespace

@@ -19,11 +19,6 @@ auto b_odds = [](auto node) { return node.win_odds(Color::DARK); };
 auto w_odds = [](auto node) { return node.win_odds(Color::LIGHT); };
 
 ////////////////////////////////////////////////////////////////////////////////
-TEST_CASE( "Size of MTCS node is a power of two", "[MCTS]" ) {
-  REQUIRE(bits_set(sizeof(MCTSNode)) == 1);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 TEST_CASE( "Odds at initial node are zero", "[MCTS]" ) {
   auto node = MCTSNode(Board(0, 0), Color::DARK);
   REQUIRE(b_odds(node) == 0.);
