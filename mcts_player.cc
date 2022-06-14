@@ -11,7 +11,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <mutex>
-#include <thread>
 #include <vector>
 
 namespace Othello {
@@ -22,7 +21,8 @@ namespace Othello {
 MCTSPlayer::MCTSPlayer(Color color, stop_ptr_t stop)
 : Player(color),
   stop_(stop),
-  nthread_(std::thread::hardware_concurrency())
+  nthread_(std::thread::hardware_concurrency()),
+  pool_(nthread_)
 {
   if (auto thread_str = getenv("NTHREAD")) {
     nthread_ = atoi(thread_str);
@@ -60,14 +60,15 @@ MCTSPlayer::compute_nodes(Board board, bits_t moves) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Given a list of nodes (moves and win records), pick the move that had the
+// Given a subrange of nodes (moves and win records), pick the move that had the
 // most wins relative to games played from that node.
 bits_t
-MCTSPlayer::highest_win_odds(const nodes_t& nodes) const
+MCTSPlayer::highest_win_odds(nodes_iter_t begin, nodes_iter_t end) const
 {
   assert(nodes.size() > 0);
+  assert(std::distance(begin, end) > 0);
 
-  const auto best = std::max_element(nodes.cbegin(), nodes.cend(),
+  const auto best = std::max_element(begin, end,
       [&](const auto& n1, const auto& n2) {
         return n1.win_odds(color_) < n2.win_odds(color_);
       });
@@ -135,22 +136,17 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
 bits_t
 MCTSPlayer::get_move(Board board, bits_t moves) const
 {
-  auto nodes = compute_nodes(board, moves);
-  assert(bits_set(moves) == nodes.size());
-  assert(nodes.size() > 0);
-
-  std::vector<std::thread> threads;
-
   stop_->reset();
-  for (unsigned t = 0; t < nthread_; t++) {
-    threads.push_back(std::thread([&](){ simulate_games(nodes); }));
-  }
+
+  auto nodes = compute_nodes(board, moves);
+  assert(nodes.size() >= bits_set(moves));
 
   for (unsigned t = 0; t < nthread_; t++) {
-    threads[t].join();
+    pool_.push_task([&](){ simulate_games(nodes); });
   }
 
-  return highest_win_odds(nodes);
+  pool_.wait_for_tasks();
+  return highest_win_odds(nodes.cbegin(), nodes.cend());
 }
 
 } // namespace

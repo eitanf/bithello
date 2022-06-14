@@ -9,6 +9,8 @@
 #include "player.hh"
 #include "stop.hh"
 
+#include "BS_thread_pool.hpp"
+
 #include <random>
 #include <vector>
 
@@ -33,15 +35,17 @@ class MCTSPlayer : public Player {
 
  private:
   using nodes_t = std::vector<MCTSNode>;
+  using nodes_iter_t = typename nodes_t::const_iterator;
 
   stop_ptr_t stop_;
   unsigned nthread_;
+  mutable BS::thread_pool pool_;
 
   // Compute all nodes for a given starting board and legal moves:
   nodes_t compute_nodes(Board board, bits_t moves) const;
 
-  // Return the move that is associated with the best odds of winning among nodes
-  bits_t highest_win_odds(const nodes_t& nodes) const;
+  // Return the move that is associated with the best odds of winning among nodes in a range
+  bits_t highest_win_odds(nodes_iter_t begin, nodes_iter_t end) const;
 
   // Run a set of simulated games from current nodes and collect win statistics in nodes
   void simulate_games(nodes_t& nodes) const;
