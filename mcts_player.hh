@@ -48,7 +48,7 @@ class MCTSPlayer : public Player {
   bits_t highest_win_odds(nodes_iter_t begin, nodes_iter_t end) const;
 
   // Run a set of simulated games from current nodes and collect win statistics in nodes
-  void simulate_games(nodes_t& nodes) const;
+  void simulate_games(nodes_t& nodes, unsigned begin, unsigned end) const;
 
  private:
 #ifdef BENCHMARK  // Benchmarking stat counters

@@ -65,7 +65,6 @@ MCTSPlayer::compute_nodes(Board board, bits_t moves) const
 bits_t
 MCTSPlayer::highest_win_odds(nodes_iter_t begin, nodes_iter_t end) const
 {
-  assert(nodes.size() > 0);
   assert(std::distance(begin, end) > 0);
 
   const auto best = std::max_element(begin, end,
@@ -85,10 +84,10 @@ MCTSPlayer::highest_win_odds(nodes_iter_t begin, nodes_iter_t end) const
 // After each simulated game, it records the game stats in local variables.
 // When the loop is done, all stats are added to member variables, under a lock.
 void
-MCTSPlayer::simulate_games(nodes_t& nodes) const
+MCTSPlayer::simulate_games(nodes_t& nodes, unsigned begin, unsigned end) const
 {
   std::mutex mut;
-  const int nmoves = nodes.size();
+  const int nmoves = end - begin;
   assert(nmoves);
   std::vector<uint64_t> d_wins(nmoves, 0);
   std::vector<uint64_t> l_wins(nmoves, 0);
@@ -100,14 +99,14 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
   auto myp = RandomPlayer(color_);
   auto opp = RandomPlayer(opponent_of(color_));
   StopCondition& stop = *stop_;
-  int idx = rand() % nmoves;  // Round-robin index into nodes
+  int i = rand() % nmoves;  // Round-robin index into nodes
 
-  for (; !stop(); idx = (idx + 1) % nmoves) {
-    const auto tile_diff = play_game(nodes[idx].board(), &opp, &myp); // flip players
+  for (; !stop(); i = (i + 1) % nmoves) {
+    const auto tile_diff = play_game(nodes[begin + i].board(), &opp, &myp); // flip players
     if (tile_diff > 0) {  // Record winner, if any:
-      d_wins[idx]++;
+      d_wins[i]++;
     } else if (tile_diff < 0) {
-      l_wins[idx]++;
+      l_wins[i]++;
     }
 #ifdef BENCHMARK
     plays++;
@@ -116,8 +115,8 @@ MCTSPlayer::simulate_games(nodes_t& nodes) const
 
   // Update final list of wins (thread-safe)
   std::unique_lock guard(mut);
-  for (idx = 0; idx < nmoves; ++idx) {
-    nodes[idx].count_wins(d_wins[idx], l_wins[idx]);
+  for (i = 0; i < nmoves; ++i) {
+    nodes[begin + i].count_wins(d_wins[i], l_wins[i]);
   }
 #ifdef BENCHMARK
   total_plays_ += plays;
@@ -141,11 +140,17 @@ MCTSPlayer::get_move(Board board, bits_t moves) const
   auto nodes = compute_nodes(board, moves);
   assert(nodes.size() >= bits_set(moves));
 
-  for (unsigned t = 0; t < nthread_; t++) {
-    pool_.push_task([&](){ simulate_games(nodes); });
+  if (nodes.size() >= nthread_ * 3) { // Enough workload to split up:
+    pool_.parallelize_loop(0, nodes.size(), [&](unsigned b, unsigned e){
+        simulate_games(nodes, b, e); }, nthread_).wait();
+  }
+  else {
+    for (unsigned t = 0; t < nthread_; t++) {
+       pool_.push_task([&](){ simulate_games(nodes, 0, nodes.size()); });
+    }
+    pool_.wait_for_tasks();
   }
 
-  pool_.wait_for_tasks();
   return highest_win_odds(nodes.cbegin(), nodes.cend());
 }
 
