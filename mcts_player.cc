@@ -140,18 +140,27 @@ MCTSPlayer::get_move(Board board, bits_t moves) const
   auto nodes = compute_nodes(board, moves);
   assert(nodes.size() >= bits_set(moves));
 
-  if (nodes.size() >= nthread_ * 3) { // Enough workload to split up:
-    pool_.parallelize_loop(0, nodes.size(), [&](unsigned b, unsigned e){
+  const auto top_level = nodes.front().board().moves_left();
+  const auto bottom_level = nodes.back().board().moves_left();
+  const auto top_end = std::find_if_not(nodes.cbegin(), nodes.cend(),
+      [=](const MCTSNode& node){ return node.board().moves_left() == top_level; });
+  const auto bottom_begin = std::find_if(nodes.cbegin(), nodes.cend(),
+      [=](const MCTSNode& node){ return node.board().moves_left() == bottom_level; });
+  const auto bottom_idx = std::distance(nodes.cbegin(), bottom_begin);
+  const auto bottom_count = std::distance(bottom_begin, nodes.cend());
+
+  if (bottom_count >= nthread_ * 3) { // Enough workload to split up:
+    pool_.parallelize_loop(bottom_idx, bottom_idx + bottom_count, [&](unsigned b, unsigned e){
         simulate_games(nodes, b, e); }, nthread_).wait();
   }
   else {
     for (unsigned t = 0; t < nthread_; t++) {
-       pool_.push_task([&](){ simulate_games(nodes, 0, nodes.size()); });
+       pool_.push_task([&](){ simulate_games(nodes, bottom_idx, bottom_idx + bottom_count); });
     }
     pool_.wait_for_tasks();
   }
 
-  return highest_win_odds(nodes.cbegin(), nodes.cend());
+  return highest_win_odds(nodes.cbegin(), top_end);
 }
 
 } // namespace
