@@ -45,7 +45,17 @@ By default, bithello will use as many threads as the hardware supports. You can 
 NTHREAD=1 ./bithello -d mcts -t 50 -l random
 ```
 
-For example, running on 32 threads, MCTS against itself (5 seconds per move) on an AMD 3970X processor (g++ v. 10) evaluates a total of about 4.4B games and 17.6B moves. Divided by 300 seconds total run time, this yields about 14.8M games/sec.
+For example, running MCTS against itself (200ms per turn, averaged over 10 games) yields about 135M move evaluations per second on AMD 5950x and g++-11 (16 threads) 
+
+
+## TODO
+
+Here are some ideas how to make the MCTS player much stronger:
+
+  * Create a tree of MCTSNodes for N moves forward (instead of just one move), and evaluate only the last level of the tree. This will save a lot of CPU effort of recomputing the available moves and board for those N-1 levels.
+  * Caching previous wins/loss data for these nodes (since the multilevel tree will necessarily compute data for sthe next N-1 boards to be used).
+  * Spread the timing per move across the entire game so that very little time is expended in the first turn and the last few, and more on the mid-game critical moves.
+
 
 ### License
 
